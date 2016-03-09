@@ -30,6 +30,9 @@ class Helper
       callback(playerElos)
 
   modeFor: (robot, modestr) ->
+    if !modestr
+      return null
+
     robot.logger.info("looking for #{modestr}")
 
     for key in Object.keys(c.modes)
