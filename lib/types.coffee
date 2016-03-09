@@ -17,8 +17,6 @@ class PlayerElo
     @gamesPlayedSolo = data.gamesPlayedSolo
     @eloSolo = data.eloSolo.toFixed(1)
 
-    # gamesPlayed":8,"gamesPlayedSolo":6,"mode":9,"elo":1252.5458443618131,"eloSolo"
-
   toString: ->
     "#{@mode} #{@elo} (#{@gamesPlayed}) / #{@eloSolo} (#{@gamesPlayedSolo})"
 

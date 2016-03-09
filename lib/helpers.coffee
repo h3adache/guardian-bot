@@ -1,16 +1,3 @@
-#exports = {
-#  findPlayer: (robot, player) ->
-#    for platform in Object.keys(c.platforms)
-#
-#    robot.http("#{c.memberSearchUrl}/#{platform}/#{player}/")
-#    .header('Accept', 'application/json')
-#    .get() (eloerr, elores, body) ->
-#      data = JSON.parse body
-#      if data.Response.length < 1
-#        return []
-#
-##      new Player(data.Response[0])
-#}
 c = require('./consts.coffee')
 t = require('./types.coffee')
 
