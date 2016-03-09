@@ -3,14 +3,21 @@ helper = new Helper
 
 module.exports = (robot) ->
   robot.respond /elo (\S*)(\s?)(\S*)?/i, (res) ->
-    mode = res.match[3]
-    if mode
-      res.reply mode
-
+    modeStr = res.match[3]
+    mode = helper.modeFor(robot, modeStr)
     helper.findPlayer(robot, res.match[1], (player) ->
-      res.reply "Looking up elo for #{player.toString()}"
-      res.reply "mode elo (games played) / solo elo (solo games played)"
-      helper.findElo(robot, player.memberid, (playerelo) ->
-        res.reply playerelo.toString()
+      response = "#{player.toString()} :"
+      found = false
+
+      helper.findElo(robot, player.memberid, (playerelos) ->
+        for elo in playerelos
+          if !mode || `mode == elo.mode`
+            response += " " + elo.toString()
+            found = true
+
+        if found
+          res.reply response
+        else
+          res.reply "No elo found for #{player} for #{modeStr}"
       )
     )

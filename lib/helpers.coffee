@@ -19,9 +19,28 @@ class Helper
     .header('Accept', 'application/json')
     .get() (eloerr, elores, body) ->
       allelos = JSON.parse body
-
+      playerElos = []
       for elo in allelos
         do (elo) ->
-          callback(new t.PlayerElo(elo))
+          playerElo = new t.PlayerElo(elo)
+          playerElos.push(playerElo)
+
+      playerElos.sort((a, b) -> a.mode - b.mode)
+
+      callback(playerElos)
+
+  modeFor: (robot, modestr) ->
+    robot.logger.info("looking for #{modestr}")
+
+    for key in Object.keys(c.modes)
+      value = c.modes[key]
+      if modestr.toLowerCase() == value.toLowerCase()
+        return key
+
+    switch modestr.toLowerCase()
+      when 'ib' then return 19
+      when 'tos' then return 14
+
+    return null
 
 module.exports = Helper
