@@ -1,6 +1,15 @@
 # guardian-bot
 
-go into your hubot scripts directory and run:
+To install (in any directory)
 ```
-git clone https://github.com/h3adache/guardian-bot.git .
+git clone https://github.com/h3adache/guardian-bot.git
+cd guardian-bot
+npm link
 ```
+
+now in your hubot root directory
+```
+npm link hubot-guardian
+```
+
+restart hubot
