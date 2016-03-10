@@ -1,6 +1,8 @@
 module.exports = {
+  bungieApi: "https://www.bungie.net/Platform"
   memberSearchUrl: "http://proxy.guardian.gg/Platform/Destiny/SearchDestinyPlayer"
   eloSearchUrl: "http://api.guardian.gg/elo"
+  accountStatsUrl: "/Destiny/Stats/Account/"
   platforms: {
     1: 'Xbox'
     2: 'PlayStation'

@@ -16,8 +16,17 @@ module.exports = (robot) ->
             found = true
 
         if found
-          res.reply response
+          res.send response
         else
-          res.reply "No elo found for #{player} for #{modeStr}"
+          res.send "No elo found for #{player} for #{modeStr}"
+      )
+    )
+
+  robot.respond /pvp (\S*)/i, (res) ->
+    player = res.match[1]
+    helper.findPlayer(robot, res.match[1], (player) ->
+      helper.stats(robot, player, (stats) ->
+        robot.logger.info(stats)
+        res.send "#{player.name} pvp : " + stats.toString()
       )
     )

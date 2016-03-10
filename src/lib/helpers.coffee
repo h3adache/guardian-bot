@@ -10,9 +10,7 @@ class Helper
         .get() (eloerr, elores, body) ->
           data = JSON.parse body
           if data.Response.length > 0
-
-            platform = c.platforms[pid]
-            callback(new t.Player(platform, data.Response[0]))
+            callback(new t.Player(pid, data.Response[0]))
 
   findElo: (robot, memberid, callback) ->
     robot.http("#{c.eloSearchUrl}/#{memberid}/")
@@ -37,7 +35,7 @@ class Helper
 
     for key in Object.keys(c.modes)
       value = c.modes[key]
-      if modestr.toLowerCase() == value.toLowerCase()
+      if value.toLowerCase().startsWith(modestr.toLowerCase())
         return key
 
     switch modestr.toLowerCase()
@@ -45,5 +43,18 @@ class Helper
       when 'tos' then return 14
 
     return null
+
+  stats: (robot, player, callback) ->
+    BUNGIE_API_KEY = process.env.BUNGIE_API_KEY
+    platform = player.platform
+    memberid = player.memberid
+
+    robot.http("#{c.bungieApi}/#{c.accountStatsUrl}/#{platform}/#{memberid}/?groups=mergedAllCharacters")
+    .header('X-API-Key', BUNGIE_API_KEY)
+    .header('Accept', 'application/json')
+    .get() (eloerr, elores, body) ->
+      allstats = JSON.parse body
+      alltime = allstats.Response.mergedAllCharacters.results.allPvP.allTime
+      callback(new t.PlayerStats(alltime))
 
 module.exports = Helper
