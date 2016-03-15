@@ -1,8 +1,11 @@
 c = require('./consts.coffee')
 t = require('./types.coffee')
+Deferred = require('promise.coffee').Deferred;
 
 class Helper
-  findPlayer: (robot, player, callback) ->
+  findPlayer: (robot, player) ->
+    deferred = new Deferred();
+
     for pid in Object.keys(c.platforms)
       do(pid) ->
         robot.http("#{c.memberSearchUrl}/#{pid}/#{player}/")
@@ -10,7 +13,11 @@ class Helper
         .get() (eloerr, elores, body) ->
           data = JSON.parse body
           if data.Response.length > 0
-            callback(new t.Player(pid, data.Response[0]))
+            deferred.resolve(new t.Player(pid, data.Response[0]))
+          else
+            deferred.reject()
+
+    deferred.promise;
 
   findElo: (robot, memberid, callback) ->
     robot.http("#{c.eloSearchUrl}/#{memberid}/")
