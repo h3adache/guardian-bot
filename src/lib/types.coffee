@@ -5,6 +5,9 @@ class Player
     @platform = platform
     @memberid = data.membershipId
     @name = data.displayName
+    @characters = []
+    for character in data.characters
+      @characters.push(character.characterBase.characterId)
 
   toString: ->
     "#{@name} (#{c.platforms[@platform]})"
