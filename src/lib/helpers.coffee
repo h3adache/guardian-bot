@@ -3,21 +3,22 @@ t = require('./types.coffee')
 Deferred = require('promise.coffee').Deferred;
 
 class Helper
-  findPlayer: (robot, player) ->
-    deferred = new Deferred();
-
+  findPlayer: (robot, displayname) ->
     for pid in Object.keys(c.platforms)
-      do(pid) ->
-        robot.http("#{c.memberSearchUrl}/#{pid}/#{player}/")
-        .header('Accept', 'application/json')
-        .get() (eloerr, elores, body) ->
-          data = JSON.parse body
-          if data.Response.length > 0
-            deferred.resolve(new t.Player(pid, data.Response[0]))
-          else
-            deferred.reject()
+      response = @callApi(robot, c.memberSearchUrl.apply @, [pid, displayname])
+      if response.length > 0
+        player = new t.Player(pid, response[0]) # @todo : handle same playername different platforms
+        player.characters = getPlayerCharacters(robot, player)
 
-    deferred.promise;
+  getPlayerCharacters: (robot, player)->
+    response = callBungieApi(robot, c.characterSearchUrl.apply @, [player])
+    characters = []
+
+    if response.length > 0
+      for character in response.data.characters
+        characters.push(character.characterBase.characterId)
+
+    characters
 
   findElo: (robot, memberid, callback) ->
     robot.http("#{c.eloSearchUrl}/#{memberid}/")
@@ -34,6 +35,11 @@ class Helper
 
       callback(playerElos)
 
+  stats: (robot, player, callback) ->
+    response = @callApi(robot, c.accountStatsUrl.apply @, [player])
+    alltime = response.mergedAllCharacters.results.allPvP.allTime
+    callback(new t.PlayerStats(alltime))
+
   modeFor: (robot, modestr) ->
     if !modestr
       return null
@@ -45,23 +51,24 @@ class Helper
       if value.toLowerCase().startsWith(modestr.toLowerCase())
         return key
 
+    # @todo : keep these in conts.
     switch modestr.toLowerCase()
       when 'ib' then return 19
       when 'tos' then return 14
 
     return null
 
-  stats: (robot, player, callback) ->
+  callApi: (robot, url) ->
     BUNGIE_API_KEY = process.env.BUNGIE_API_KEY
-    platform = player.platform
-    memberid = player.memberid
 
-    robot.http("#{c.bungieApi}/#{c.accountStatsUrl}/#{platform}/#{memberid}/?groups=mergedAllCharacters")
+    deferred = new Deferred();
+    robot.http("#{url}")
     .header('X-API-Key', BUNGIE_API_KEY)
     .header('Accept', 'application/json')
-    .get() (eloerr, elores, body) ->
-      allstats = JSON.parse body
-      alltime = allstats.Response.mergedAllCharacters.results.allPvP.allTime
-      callback(new t.PlayerStats(alltime))
+    .get() (err, res, body) ->
+      data = JSON.parse body
+      deferred.resolve(data.Response)
+
+    deferred.promise
 
 module.exports = Helper

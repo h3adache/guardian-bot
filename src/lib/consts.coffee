@@ -1,8 +1,17 @@
+# bungie apis
+bungieApi = "https://www.bungie.net/Platform"
+
 module.exports = {
-  bungieApi: "https://www.bungie.net/Platform"
-  memberSearchUrl: "http://proxy.guardian.gg/Platform/Destiny/SearchDestinyPlayer"
+# guardian apis
   eloSearchUrl: "http://api.guardian.gg/elo"
-  accountStatsUrl: "/Destiny/Stats/Account/"
+
+  memberSearchUrl: (platform, displayname) ->
+    "#{bungieApi}/Destiny/SearchDestinyPlayer/#{platform}/#{displayname}"
+  characterSearchUrl: (player) ->
+    "#{bungieApi}/Destiny/#{player.platform}/Account/#{player.memberid}"
+  accountStatsUrl: (player) ->
+    "#{bungieApi}/Destiny/Stats/Account/#{player.platform}/#{player.memberid}"
+
   platforms: {
     1: 'Xbox'
     2: 'PlayStation'

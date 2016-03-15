@@ -24,10 +24,9 @@ module.exports = (robot) ->
   robot.respond /pvp (\S*)/i, (res) ->
     player = res.match[1]
     player = helper.findPlayer(robot, res.match[1])
-    helper.stats(robot, player, (stats) ->
-      robot.logger.info(stats)
-      res.send "#{player.name} pvp : " + stats.toString()
-    )
+    stats = helper.stats(robot, player)
+    console.log(stats)
+    res.send "#{player.name} pvp : " + stats.toString()
 
   robot.respond /inspect (.*)/i, (res) ->
     query_parts = res.match[1].split " "
@@ -40,4 +39,3 @@ module.exports = (robot) ->
         console.log(characterId)
 
 # possibleNodes = talentGridDef.nodes;
-
