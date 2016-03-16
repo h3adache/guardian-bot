@@ -5,6 +5,8 @@ module.exports = {
 # guardian apis
   eloSearchUrl: "http://api.guardian.gg/elo"
 
+# http://www.bungie.net/platform/destiny/2/stats/getmembershipidbydisplayname/gchen77/
+
   memberSearchUrl: (platform, displayname) ->
     "#{bungieApi}/Destiny/SearchDestinyPlayer/#{platform}/#{displayname}"
   characterSearchUrl: (player) ->

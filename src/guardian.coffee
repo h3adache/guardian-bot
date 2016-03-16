@@ -39,7 +39,8 @@ module.exports = (robot) ->
         console.log(characterId)
 
   robot.respond /test/i, (res) ->
-    console.log("===> " + helper.callApi(robot, "https://www.google.com"))
+    test = helper.callApi(robot, "http://www.bungie.net/platform/destiny/advisors/")
+    console.log(test)
     console.log("done with test")
 
 # possibleNodes = talentGridDef.nodes;
