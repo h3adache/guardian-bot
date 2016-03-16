@@ -38,4 +38,8 @@ module.exports = (robot) ->
       for characterId in player.characters
         console.log(characterId)
 
+  robot.respond /test/i, (res) ->
+    console.log("===> " + helper.callApi(robot, "https://www.google.com"))
+    console.log("done with test")
+
 # possibleNodes = talentGridDef.nodes;

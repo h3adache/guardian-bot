@@ -1,6 +1,7 @@
 c = require('./consts.coffee')
 t = require('./types.coffee')
 Deferred = require('promise.coffee').Deferred;
+r = require("request")
 
 class Helper
   findPlayer: (robot, displayname) ->
@@ -61,14 +62,11 @@ class Helper
   callApi: (robot, url) ->
     BUNGIE_API_KEY = process.env.BUNGIE_API_KEY
 
-    deferred = new Deferred();
-    robot.http("#{url}")
-    .header('X-API-Key', BUNGIE_API_KEY)
-    .header('Accept', 'application/json')
-    .get() (err, res, body) ->
-      data = JSON.parse body
-      deferred.resolve(data.Response)
+    yield r.getAsync("#{url}").get(0)
+    # .header('X-API-Key', BUNGIE_API_KEY)
+    # .header('Accept', 'application/json')
+    # .get() (err, res, body)
 
-    deferred.promise
+    # body
 
 module.exports = Helper
