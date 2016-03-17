@@ -58,7 +58,7 @@ module.exports = (robot) ->
           text: "testing"
         }]
 
-      robot.emit 'slack-attachment', card for card in cards
+      robot.emit 'slack-attachment', payload
 
   robot.respond /inspect (.*)/i, (res) ->
     query_parts = res.match[1].split " "
