@@ -45,15 +45,13 @@ module.exports = (robot) ->
     else
       api.grimoire({theme:query_parts[0], page:query_parts[1]}).then (cards) ->
         console.log cards
-        robot.emit 'slack.attachment', card for card in cards
+        res.emit 'slack-attachment', card for card in cards
 
   robot.respond /lure card (\S*)/i, (res) ->
-    robot.emit "lure card"
-
     cardId = res.match[1]
     api.grimoire({card:cardId}).then (cards) ->
       console.log JSON.stringify card for card in cards
-      robot.emit card for card in cards
+      robot.emit 'slack-attachment', card for card in cards
 
   robot.respond /inspect (.*)/i, (res) ->
     query_parts = res.match[1].split " "
