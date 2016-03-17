@@ -64,14 +64,17 @@ module.exports = {
             for card in page.cardCollection
               if `card.cardId == query.card`
                 results.push "<b>#{card.cardName}(#{card.cardId})</b>"
-                results.push "<i>#{card.cardIntro}</i>"
-                results.push "    #{card.cardDescription}"
+                if card.cardIntro
+                  results.push "<i>#{card.cardIntro}</i>"
+                results.push "#{card.cardDescription}"
       else if query.page
         for theme in themeCollection
           if theme.themeName.toLowerCase() == query.theme.toLowerCase()
             for page in theme.pageCollection
               if page.pageName.toLowerCase() == query.page.toLowerCase()
-                results.push "#{card.cardName}(#{card.cardId}) - #{card.cardIntro}" for card in page.cardCollection
+                for card in page.cardCollection
+                  intro = if card.cardIntro then card.cardIntro else ""
+                  results.push "#{card.cardName}(#{card.cardId}) #{card.cardIntro}"
       else if query.theme
         for theme in themeCollection
           if theme.themeName.toLowerCase() == query.theme.toLowerCase()
