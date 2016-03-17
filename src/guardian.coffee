@@ -51,6 +51,13 @@ module.exports = (robot) ->
     cardId = res.match[1]
     api.grimoire({card:cardId}).then (cards) ->
       console.log JSON.stringify card for card in cards
+
+      payload =
+        message: "testing"
+        attachments: [{
+          text: "testing"
+        }]
+
       robot.emit 'slack-attachment', card for card in cards
 
   robot.respond /inspect (.*)/i, (res) ->
