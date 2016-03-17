@@ -63,10 +63,15 @@ module.exports = {
           for page in theme.pageCollection
             for card in page.cardCollection
               if `card.cardId == query.card`
-                results.push "<b>#{card.cardName}(#{card.cardId})</b>"
-                if card.cardIntro
-                  results.push "<i>#{card.cardIntro}</i>"
-                results.push "#{card.cardDescription}"
+                payload = {
+                  text: card.cardName,
+                  attachments: [{
+                    text: card.cardDescription,
+                    thumb_url: "http://www.bungie.net" + card.normalResolution.smallImage.sheetPath,
+                  }]
+                }
+
+                results.push payload
       else if query.page
         for theme in themeCollection
           if theme.themeName.toLowerCase() == query.theme.toLowerCase()
