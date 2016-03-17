@@ -75,7 +75,7 @@ module.exports = {
       else if query.theme
         for theme in themeCollection
           if theme.themeName.toLowerCase() == query.theme.toLowerCase()
-            results.push page for page in theme.pageCollection
+            results.push page.pageName for page in theme.pageCollection
 
       deferred.resolve(results)
 
