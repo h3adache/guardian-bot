@@ -25,6 +25,11 @@ module.exports = (robot) ->
     api.getPvpStats(displayname).then (stats) ->
       res.send "#{displayname} pvp : #{stats.toString()}"
 
+  robot.respond /carnage (\S*)/i, (res) ->
+    displayname = res.match[1]
+    api.carnage(displayname).then (carnageReport) ->
+      res.send "#{displayname} : #{carnageReport}"
+
   robot.respond /armsday/i, (res) ->
     api.armsday().then (arms) ->
       res.send arms.join()
@@ -50,8 +55,7 @@ module.exports = (robot) ->
   robot.respond /lure card (\S*)/i, (res) ->
     cardId = res.match[1]
     api.grimoire({card:cardId}).then (cards) ->
-      console.log JSON.stringify card for card in cards
-
+      console.log card for card in cards
       payload =
         message: "testing"
         attachments: [{

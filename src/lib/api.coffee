@@ -11,7 +11,7 @@ module.exports = {
   findElo: (displayname) ->
     apiurl = (memberid) -> "http://api.guardian.gg/elo/#{memberid}/"
     deferred = new Deferred()
-    getMembershipId(displayname)
+    getMember(displayname)
     .then (member) ->
       return callApi(apiurl.apply @, [member.memberid])
     .then (response) ->
@@ -27,7 +27,7 @@ module.exports = {
   getPvpStats: (displayname) ->
     apiurl = (player) -> "#{bungie_api}/destiny/stats/account/#{player.platform}/#{player.memberid}"
     deferred = new Deferred()
-    getMembershipId(displayname)
+    getMember(displayname)
     .then (member) ->
       return callApi(apiurl.apply @, [member])
     .then (response) ->
@@ -84,23 +84,34 @@ module.exports = {
         for theme in themeCollection
           if theme.themeName.toLowerCase() == query.theme.toLowerCase()
             results.push page.pageName for page in theme.pageCollection
-
       deferred.resolve(results)
+    return deferred.promise
 
+  carnage: (displayname) ->
+    deferred = new Deferred()
+    getActivityHistory(displayname, 5, true)
+    .then (response) ->
+      definitions = response.definitions
+      activityDetails = response.data.activities[0].activityDetails
+      activityValues = response.data.activities[0].values
+      activityDef = definitions.activities[activityDetails.referenceId]
+      activityType = definitions.activityTypes[activityDetails.activityTypeHashOverride]
 
+      playerStats = new t.PlayerStats(activityValues)
+      deferred.resolve "#{activityType.activityTypeName} (#{activityDef.activityName}) - #{playerStats.toString()}"
     return deferred.promise
 
   inspect: (displayname, item) ->
     apiurl = (player) -> "#{bungie_api}/destiny/#{player.platform}/account/#{player.memberid}"
-    getMembershipId(displayname)
+    getMember(displayname)
     .then (member) ->
       return callApi(apiurl.apply @, [member])
     .then (response) ->
       player = new t.Player(pid, response[0]) # @todo : handle same playername different platforms
-      player.characters = getPlayerCharacters(robot, player)
+      player.characters = getMemberWithCharacters(robot, player)
 }
 
-getMembershipId = (displayname) ->
+getMember = (displayname) ->
   deferred = new Deferred()
   apiurl = (platform, displayname) ->
     "#{bungie_api}/destiny/#{platform}/stats/getmembershipidbydisplayname/#{displayname}"
@@ -110,14 +121,42 @@ getMembershipId = (displayname) ->
         deferred.resolve({ memberid: memberid, platform: platform })
   return deferred.promise
 
-callApi = (url) ->
-  console.log("url : #{url}")
+getMemberWithCharacters = (displayname) ->
+  deferred = new Deferred()
+  found_member = ""
+  apiurl = (member) ->
+    "#{bungie_api}/destiny/#{member.platform}/account/#{member.memberid}"
+  getMember(displayname)
+  .then (member) ->
+    found_member = member
+    return callApi(apiurl.apply @, [member])
+  .then (response) ->
+    characters = []
+    characters.push character.characterBase for character in response.data.characters
+    found_member.characters = characters
+    deferred.resolve(found_member)
+  return deferred.promise
+
+getActivityHistory = (displayname, mode, definitions) ->
+  deferred = new Deferred()
+  apiurl = (c) ->
+    "http://www.bungie.net/Platform/Destiny/Stats/ActivityHistory/#{c.membershipType}/#{c.membershipId}/#{c.characterId}/"
+  getMemberWithCharacters(displayname)
+  .then (member) ->
+    return callApi(apiurl.apply(@, [member.characters[0]]), { mode:mode, definitions:definitions })
+  .then (response) ->
+    deferred.resolve response
+  return deferred.promise
+
+callApi = (url, params) ->
+  console.log("url : #{url} / params: #{JSON.stringify params}")
   deferred = new Deferred()
   options = {
     url: url,
     headers: {
       'X-API-Key': bungie_api_key
     },
+    qs: params,
     json : true
   };
 
