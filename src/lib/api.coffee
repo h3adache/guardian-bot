@@ -64,7 +64,7 @@ module.exports = {
             for card in page.cardCollection
               if `card.cardId == query.card`
                 payload = {
-                  text: card.cardName,
+                  message: card.cardName,
                   attachments: [{
                     text: card.cardDescription,
                     thumb_url: "http://www.bungie.net" + card.normalResolution.smallImage.sheetPath,

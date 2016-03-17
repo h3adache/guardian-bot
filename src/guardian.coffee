@@ -48,13 +48,12 @@ module.exports = (robot) ->
         robot.emit 'slack.attachment', card for card in cards
 
   robot.respond /lure card (\S*)/i, (res) ->
-    try
-      cardId = res.match[1]
-      api.grimoire({card:cardId}).then (cards) ->
-        console.log JSON.stringify card for card in cards
-        robot.emit 'slack.attachment', JSON.stringify card for card in cards
-    catch error
-      console.error error
+    robot.emit "lure card"
+
+    cardId = res.match[1]
+    api.grimoire({card:cardId}).then (cards) ->
+      console.log JSON.stringify card for card in cards
+      robot.emit card for card in cards
 
   robot.respond /inspect (.*)/i, (res) ->
     query_parts = res.match[1].split " "
