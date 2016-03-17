@@ -1,37 +1,21 @@
-# bungie apis
-bungieApi = "https://www.bungie.net/Platform"
-
 module.exports = {
-# guardian apis
-  eloSearchUrl: "http://api.guardian.gg/elo"
-
-# http://www.bungie.net/platform/destiny/2/stats/getmembershipidbydisplayname/gchen77/
-
-  memberSearchUrl: (platform, displayname) ->
-    "#{bungieApi}/Destiny/SearchDestinyPlayer/#{platform}/#{displayname}"
-  characterSearchUrl: (player) ->
-    "#{bungieApi}/Destiny/#{player.platform}/Account/#{player.memberid}"
-  accountStatsUrl: (player) ->
-    "#{bungieApi}/Destiny/Stats/Account/#{player.platform}/#{player.memberid}"
-
   platforms: {
     1: 'Xbox'
     2: 'PlayStation'
   }
   modes: {
-    9: 'Skirmish'
-    10: 'Control'
-    11: 'Salvage'
-    12: 'Clash'
-    13: 'Rumble'
-    14: 'Trials of Osiris'
-    15: 'Doubles'
-    19: 'Iron Banner'
-    23: 'Elimination'
-    24: 'Rift'
-    28: 'Zone Control'
-    29: 'SRL'
-
-    523: 'Crimson Doubles'
+    9: ['skirmish']
+    10: ['control']
+    11: ['salvage']
+    12: ['clash']
+    13: ['rumble']
+    14: ['trials of osiris', 'too']
+    15: ['doubles']
+    19: ['iron banner', 'ib']
+    23: ['elimination']
+    24: ['rift']
+    28: ['zone control', 'zc']
+    29: ['srl']
+    523: ['crimson doubles', 'cd']
   }
 }

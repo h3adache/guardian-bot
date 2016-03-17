@@ -1,46 +1,50 @@
-Helper = require('./lib/helpers.coffee')
-helper = new Helper
+api = require('./lib/api.coffee')
+c = require('./lib/consts.coffee')
 
 module.exports = (robot) ->
-  robot.respond /elo (\S*)(\s?)(\S*)?/i, (res) ->
-    modeStr = res.match[3]
-    mode = helper.modeFor(robot, modeStr)
-    player = helper.findPlayer(robot, res.match[1])
-    response = "#{player.toString()} :"
-    found = false
+    robot.respond /elo (\S*)(\s?)(\S*)?/i, (res) ->
+        modeStr = res.match[3]
+        displayname = res.match[1]
 
-    helper.findElo(robot, player.memberid, (playerelos) ->
-      for elo in playerelos
-        if !mode || `mode == elo.mode`
-          response += " " + elo.toString()
-          found = true
+        api.findElo(displayname).then (playerElos) ->
+            if modeStr
+                mode = find_mode(modeStr)
+                found = false
+                for elo in playerElos
+                    if `elo.mode == mode`
+                        res.send "#{displayname}: #{elo}"
+                        found = true
 
-      if found
-        res.send response
-      else
-        res.send "No elo found for #{player} for #{modeStr}"
-    )
+                if not found
+                    res.send "no elo for #{modeStr} for player #{displayname}"
+            else
+                res.send "#{displayname}: #{playerElos.join()}"
 
-  robot.respond /pvp (\S*)/i, (res) ->
-    player = res.match[1]
-    player = helper.findPlayer(robot, res.match[1])
-    stats = helper.stats(robot, player)
-    console.log(stats)
-    res.send "#{player.name} pvp : " + stats.toString()
+    robot.respond /pvp (\S*)/i, (res) ->
+        displayname = res.match[1]
+        api.getPvpStats(displayname).then (stats) ->
+            res.send "#{displayname} pvp : #{stats.toString()}"
 
-  robot.respond /inspect (.*)/i, (res) ->
-    query_parts = res.match[1].split " "
+    robot.respond /armsday/i, (res) ->
+        api.armsday().then (arms) ->
+            res.send arms.join()
 
-    if query_parts.length != 2
-      res.send "usage: inspect <playername> <itemname>"
-    else
-      player = helper.findPlayer(robot, query_parts[0])
-      for characterId in player.characters
-        console.log(characterId)
+  # robot.respond /inspect (.*)/i, (res) ->
+  #   query_parts = res.match[1].split " "
+  #
+  #   if query_parts.length != 2
+  #     res.send "usage: inspect <playername> <itemname>"
+  #   else
+  #     api.getMembershipId(query_parts[0]).then (member) ->
+  #         console.log JSON.stringify member
 
-  robot.respond /test/i, (res) ->
-    test = helper.callApi(robot, "http://www.bungie.net/platform/destiny/advisors/")
-    console.log(test)
-    console.log("done with test")
+find_mode = (modestr) ->
+    if !modestr
+        return null
 
-# possibleNodes = talentGridDef.nodes;
+    for key in Object.keys(c.modes)
+        values = c.modes[key]
+        if modestr.toLowerCase() in values
+            return key
+
+    return -1

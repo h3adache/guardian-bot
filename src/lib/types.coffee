@@ -21,7 +21,7 @@ class PlayerElo
     @eloSolo = data.eloSolo.toFixed(1)
 
   toString: ->
-    "#{c.modes[@mode]} #{@elo}"
+    "#{c.modes[@mode][0]} #{@elo}"
 
 class PlayerStats
   constructor: (data) ->

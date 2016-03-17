@@ -13,7 +13,8 @@
     "url": "https://github.com/h3adache/guardian-bot/issues"
   },
   "dependencies": {
-    "promise.coffee": "^1.0.6"
+    "promise.coffee": "^1.0.6",
+    "request": "^2.69.0"
   },
   "peerDependencies": {
     "hubot": "2.x"
