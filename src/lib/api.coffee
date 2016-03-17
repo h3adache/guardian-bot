@@ -49,14 +49,36 @@ module.exports = {
 
     return deferred.promise
 
-  grimoire: ->
+  grimoire: (query) ->
     apiurl = "http://www.bungie.net/Platform/Destiny/Vanguard/Grimoire/Definition/"
     deferred = new Deferred()
     callApi(apiurl).then (grimoires) ->
       themeCollection = grimoires.themeCollection
-      themes = []
-      themes.push theme.themeName for theme in themeCollection
-      deferred.resolve(themes)
+      results = []
+
+      if (Object.keys(query).length == 0)
+        results.push theme.themeName for theme in themeCollection
+      else if query.card
+        for theme in themeCollection
+          for page in theme.pageCollection
+            for card in page.cardCollection
+              if `card.cardId == query.card`
+                results.push "<b>#{card.cardName}(#{card.cardId})</b>"
+                results.push "<i>#{card.cardIntro}</i>"
+                results.push "    #{card.cardDescription}"
+      else if query.page
+        for theme in themeCollection
+          if theme.themeName.toLowerCase() == query.theme.toLowerCase()
+            for page in theme.pageCollection
+              if page.pageName.toLowerCase() == query.page.toLowerCase()
+                results.push "#{card.cardName}(#{card.cardId}) - #{card.cardIntro}" for card in page.cardCollection
+      else if query.theme
+        for theme in themeCollection
+          if theme.themeName.toLowerCase() == query.theme.toLowerCase()
+            results.push page for page in theme.pageCollection
+
+      deferred.resolve(results)
+
 
     return deferred.promise
 

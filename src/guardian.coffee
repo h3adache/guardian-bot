@@ -30,8 +30,26 @@ module.exports = (robot) ->
       res.send arms.join()
 
   robot.respond /lure themes/i, (res) ->
-    api.grimoire().then (themes) ->
+    api.grimoire({}).then (themes) ->
       res.send theme for theme in themes
+
+  robot.respond /lure pages (\S*)/i, (res) ->
+    themeName = res.match[1]
+    api.grimoire({theme:themeName}).then (pages) ->
+      res.send page for page in pages
+
+  robot.respond /lure cards (.*)/i, (res) ->
+    query_parts = res.match[1].split "/"
+    if query_parts.length < 2
+      res.send "usage: lure cards <themeName>/<pageName>"
+    else
+      api.grimoire({theme:query_parts[0], page:query_parts[1]}).then (cards) ->
+        res.send card for card in cards
+
+  robot.respond /lure card (\S*)/i, (res) ->
+    cardId = res.match[1]
+    api.grimoire({card:cardId}).then (cards) ->
+      res.send card for card in cards
 
   robot.respond /inspect (.*)/i, (res) ->
     query_parts = res.match[1].split " "
