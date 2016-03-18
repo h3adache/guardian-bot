@@ -52,38 +52,34 @@ module.exports = {
   grimoire: (query) ->
     apiurl = "http://www.bungie.net/Platform/Destiny/Vanguard/Grimoire/Definition/"
     deferred = new Deferred()
+    searchTerm = query.query.toLowerCase()
     callApi(apiurl).then (grimoires) ->
-      themeCollection = grimoires.themeCollection
       results = []
-
-      if (Object.keys(query).length == 0)
-        results.push theme.themeName for theme in themeCollection
-      else if query.card
-        for theme in themeCollection
+      themeCollection = grimoires.themeCollection
+      for theme in themeCollection
+        if (searchTerm == 'themes')
+          results.push theme.themeName
+        else if theme.themeName.toLowerCase() == searchTerm
+          results.push page.pageName for page in theme.pageCollection
+        else
           for page in theme.pageCollection
-            for card in page.cardCollection
-              if `card.cardId == query.card`
-                payload = {
-                  message: card.cardName,
-                  attachments: [{
-                    text: card.cardDescription,
-                    thumb_url: "http://www.bungie.net" + card.normalResolution.smallImage.sheetPath,
-                  }]
-                }
-
-                results.push payload
-      else if query.page
-        for theme in themeCollection
-          if theme.themeName.toLowerCase() == query.theme.toLowerCase()
-            for page in theme.pageCollection
-              if page.pageName.toLowerCase() == query.page.toLowerCase()
-                for card in page.cardCollection
-                  intro = if card.cardIntro then card.cardIntro else ""
-                  results.push "#{card.cardName}(#{card.cardId}) #{card.cardIntro}"
-      else if query.theme
-        for theme in themeCollection
-          if theme.themeName.toLowerCase() == query.theme.toLowerCase()
-            results.push page.pageName for page in theme.pageCollection
+            console.log "looking at #{page.pageName} for #{searchTerm}"
+            if page.pageName.toLowerCase() == searchTerm
+              for card in page.cardCollection
+                console.log "#{card.cardName}"
+                intro = if card.cardIntro then card.cardIntro else ""
+                results.push "#{card.cardName}(#{card.cardId}) #{card.cardIntro}"
+            else
+              for card in page.cardCollection
+                if `card.cardId == searchTerm`
+                  payload = {
+                    message: card.cardName,
+                    attachments: [{
+                      text: card.cardDescription,
+                      thumb_url: "http://www.bungie.net" + card.normalResolution.smallImage.sheetPath,
+                    }]
+                  }
+                  results.push payload
       deferred.resolve(results)
     return deferred.promise
 

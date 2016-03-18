@@ -34,35 +34,19 @@ module.exports = (robot) ->
     api.armsday().then (arms) ->
       res.send arms.join()
 
-  robot.respond /lure themes/i, (res) ->
-    api.grimoire({}).then (themes) ->
-      res.send theme for theme in themes
+  robot.respond /lure (.*)/i, (res) ->
+    robot.emit 'slack-attachment', {
+      message: 'query'
+      attachments: [
+        {
+          text:'some query'
+        }
+      ]
+    }
 
-  robot.respond /lure pages (\S*)/i, (res) ->
-    themeName = res.match[1]
-    api.grimoire({theme:themeName}).then (pages) ->
-      res.send page for page in pages
-
-  robot.respond /lure cards (.*)/i, (res) ->
-    query_parts = res.match[1].split "/"
-    if query_parts.length < 2
-      res.send "usage: lure cards <themeName>/<pageName>"
-    else
-      api.grimoire({theme:query_parts[0], page:query_parts[1]}).then (cards) ->
-        console.log cards
-        res.emit 'slack-attachment', card for card in cards
-
-  robot.respond /lure card (\S*)/i, (res) ->
-    cardId = res.match[1]
-    api.grimoire({card:cardId}).then (cards) ->
-      console.log card for card in cards
-      payload =
-        message: "testing"
-        attachments: [{
-          text: "testing"
-        }]
-
-      robot.emit 'slack-attachment', payload
+    query = res.match[1]
+    api.grimoire({query: query}).then (results) ->
+      res.send result for result in results
 
   robot.respond /inspect (.*)/i, (res) ->
     query_parts = res.match[1].split " "
