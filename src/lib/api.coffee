@@ -107,6 +107,7 @@ module.exports = {
 getMember = (displayname) ->
   deferred = new Deferred()
   apiurl = (platform, displayname) ->
+    # http://www.bungie.net/Platform/User/SearchUsers/?q= <-- replace with this call has psnDisplayName and xboxDisplayName
     "#{bungie_api}/destiny/#{platform}/stats/getmembershipidbydisplayname/#{displayname}"
   for platform in Object.keys(c.platforms)
     callApi(apiurl.apply(@, [platform, displayname])).then (memberid) ->
