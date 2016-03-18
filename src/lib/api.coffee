@@ -72,7 +72,7 @@ module.exports = {
                 if `card.cardId == searchTerm`
                   console.log "found card #{card.cardName}"
                   attachment = {
-                    text: card.cardDescription,
+                    text: stripHtml(card.cardDescription),
                     fallback: card.cardDescription,
                     thumb_url: "http://www.bungie.net" + card.normalResolution.smallImage.sheetPath,
                   }
@@ -160,3 +160,9 @@ callApi = (url, params) ->
       deferred.resolve(body)
 
   return deferred.promise
+
+stripHtml = (html) ->
+    return_text = html.replace(/<style.+\/style>/g, '')
+    return_text = return_text.replace(/<br ?\/?>/g, "\n\n").replace(/&nbsp;/g, ' ').replace(/[ ]+/g, ' ').replace(/%22/g, '"').replace(/&amp;/g, '&').replace(/<\/?.+?>/g, '')
+    return_text = return_text.replace(/&gt;/g, '>').replace(/&lt;/g, '<')
+    return return_text
