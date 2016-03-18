@@ -35,12 +35,13 @@ module.exports = (robot) ->
       res.send arms.join()
 
   robot.respond /card (.*)/i, (res) ->
-      query = res.match[1]
-      api.grimoire({query: query}).then (results) ->
-        payload =
-          message: res.message
-          attachments: results
-        robot.emit 'slack-attachment', payload
+    query = res.match[1]
+    api.grimoire({query: query}).then (results) ->
+      console.log "got #{results}"
+      payload =
+        message: res.message
+        attachments: results
+    robot.emit 'slack-attachment', payload
 
   robot.respond /lure (.*)/i, (res) ->
     query = res.match[1]

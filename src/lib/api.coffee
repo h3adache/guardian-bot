@@ -63,10 +63,8 @@ module.exports = {
           results.push page.pageName for page in theme.pageCollection
         else
           for page in theme.pageCollection
-            console.log "looking at #{page.pageName} for #{searchTerm}"
             if page.pageName.toLowerCase() == searchTerm
               for card in page.cardCollection
-                console.log "#{card.cardName}"
                 intro = if card.cardIntro then card.cardIntro else ""
                 results.push "#{card.cardName}(#{card.cardId}) #{card.cardIntro}"
             else
