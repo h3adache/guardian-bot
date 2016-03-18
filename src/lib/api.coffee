@@ -70,13 +70,13 @@ module.exports = {
             else
               for card in page.cardCollection
                 if card.cardId == searchTerm
-                    console.log "found card #{card.cardName}"
-                    attachments = [{
-                      text: card.cardDescription,
-                      fallback: card.cardDescription,
-                      thumb_url: "http://www.bungie.net" + card.normalResolution.smallImage.sheetPath,
-                    }]
-                  results.push attachments
+                  console.log "found card #{card.cardName}"
+                  attachment = {
+                    text: card.cardDescription,
+                    fallback: card.cardDescription,
+                    thumb_url: "http://www.bungie.net" + card.normalResolution.smallImage.sheetPath,
+                  }
+                  results.push attachment
       deferred.resolve(results)
     return deferred.promise
 

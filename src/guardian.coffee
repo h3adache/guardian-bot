@@ -37,7 +37,8 @@ module.exports = (robot) ->
   robot.respond /card (.*)/i, (res) ->
     query = res.match[1]
     api.grimoire({query: query}).then (results) ->
-      console.log "got #{JSON.stringify results}"
+      console.log "got #{JSON.stringify result}" for result in results
+
       payload =
         message: res.message
         attachments: results
