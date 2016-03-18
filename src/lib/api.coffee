@@ -69,7 +69,7 @@ module.exports = {
                 results.push "#{card.cardName}(#{card.cardId}) #{card.cardIntro}"
             else
               for card in page.cardCollection
-                if card.cardId == searchTerm
+                if `card.cardId == searchTerm`
                   console.log "found card #{card.cardName}"
                   attachment = {
                     text: card.cardDescription,
