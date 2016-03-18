@@ -35,14 +35,16 @@ module.exports = (robot) ->
       res.send arms.join()
 
   robot.respond /lure (.*)/i, (res) ->
-    robot.emit 'slack-attachment', {
-      message: 'query'
+    payload =
+      message: res.message
       attachments: [
         {
-          text:'some query'
+           title: 'query'
+           text: 'query'
+           fallback: 'query'
         }
       ]
-    }
+    robot.emit 'slack-attachment', payload
 
     query = res.match[1]
     api.grimoire({query: query}).then (results) ->
