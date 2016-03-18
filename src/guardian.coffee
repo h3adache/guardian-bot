@@ -34,18 +34,16 @@ module.exports = (robot) ->
     api.armsday().then (arms) ->
       res.send arms.join()
 
-  robot.respond /lure (.*)/i, (res) ->
-    payload =
-      message: res.message
-      attachments: [
-        {
-           title: 'query'
-           text: 'query'
-           fallback: 'query'
-        }
-      ]
-    robot.emit 'slack-attachment', payload
+  robot.respond /card (.*)/i, (res) ->
+      query = res.match[1]
+      api.grimoire({query: query}).then (results) ->
+        payload =
+          message: res.message
+          attachments: results
+          ]
+        robot.emit 'slack-attachment', payload
 
+  robot.respond /lure (.*)/i, (res) ->
     query = res.match[1]
     api.grimoire({query: query}).then (results) ->
       res.send result for result in results
