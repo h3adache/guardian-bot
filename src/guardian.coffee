@@ -40,7 +40,6 @@ module.exports = (robot) ->
         payload =
           message: res.message
           attachments: results
-          ]
         robot.emit 'slack-attachment', payload
 
   robot.respond /lure (.*)/i, (res) ->
