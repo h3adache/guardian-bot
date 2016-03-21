@@ -107,12 +107,11 @@ module.exports = {
 getMember = (displayname) ->
   deferred = new Deferred()
   apiurl = (platform, displayname) ->
-    # http://www.bungie.net/Platform/User/SearchUsers/?q= <-- replace with this call has psnDisplayName and xboxDisplayName
-    "#{bungie_api}/destiny/#{platform}/stats/getmembershipidbydisplayname/#{displayname}"
+    "http://proxy.guardian.gg/Platform/Destiny/SearchDestinyPlayer/#{platform}/#{displayname}"
   for platform in Object.keys(c.platforms)
-    callApi(apiurl.apply(@, [platform, displayname])).then (memberid) ->
-      if memberid != "0"
-        deferred.resolve({ memberid: memberid, platform: platform })
+    callApi(apiurl.apply(@, [platform, displayname])).then (response) ->
+      if response.length > 0
+        deferred.resolve({ memberid: response[0].membershipId, platform: response[0].membershipType })
   return deferred.promise
 
 getMemberWithCharacters = (displayname) ->
@@ -163,7 +162,7 @@ callApi = (url, params) ->
   return deferred.promise
 
 stripHtml = (html) ->
-    return_text = html.replace(/<style.+\/style>/g, '')
-    return_text = return_text.replace(/<br ?\/?>/g, "\n\n").replace(/&nbsp;/g, ' ').replace(/[ ]+/g, ' ').replace(/%22/g, '"').replace(/&amp;/g, '&').replace(/<\/?.+?>/g, '')
-    return_text = return_text.replace(/&gt;/g, '>').replace(/&lt;/g, '<')
-    return return_text
+  return_text = html.replace(/<style.+\/style>/g, '')
+  return_text = return_text.replace(/<br ?\/?>/g, "\n\n").replace(/&nbsp;/g, ' ').replace(/[ ]+/g, ' ').replace(/%22/g, '"').replace(/&amp;/g, '&').replace(/<\/?.+?>/g, '')
+  return_text = return_text.replace(/&gt;/g, '>').replace(/&lt;/g, '<')
+  return return_text
