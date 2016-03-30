@@ -18,4 +18,6 @@ module.exports = {
     29: ['srl']
     523: ['crimson doubles', 'cd']
   }
+  genders: ['Male', 'Female']
+  classes: ['Titan', 'Hunter', 'Warlock']
 }

@@ -27,12 +27,22 @@ module.exports = {
   getPvpStats: (displayname) ->
     apiurl = (player) -> "#{bungie_api}/destiny/stats/account/#{player.platform}/#{player.memberid}"
     deferred = new Deferred()
-    getMember(displayname)
+
+    self = @
+    getMemberWithCharacters(displayname)
     .then (member) ->
+      self.member = member
       return callApi(apiurl.apply @, [member])
     .then (response) ->
+      stats = []
       alltime = response.mergedAllCharacters.results.allPvP.allTime
-      deferred.resolve(new t.PlayerStats(alltime))
+      self.member.stats = new t.PlayerStats(alltime)
+
+      for character in response.characters
+        if !character.deleted
+          self.member.characters[character.characterId].stats = new t.PlayerStats(character.results.allPvP.allTime)
+
+      deferred.resolve(self.member)
     return deferred.promise
 
   armsday: ->
@@ -95,13 +105,15 @@ module.exports = {
     return deferred.promise
 
   inspect: (displayname, item) ->
-    apiurl = (player) -> "#{bungie_api}/destiny/#{player.platform}/account/#{player.memberid}"
-    getMember(displayname)
+    # apiurl = (player) -> "#{bungie_api}/destiny/#{player.platform}/account/#{player.memberid}"
+    getMemberWithCharacters(displayname)
     .then (member) ->
-      return callApi(apiurl.apply @, [member])
-    .then (response) ->
-      player = new t.Player(pid, response[0]) # @todo : handle same playername different platforms
-      player.characters = getMemberWithCharacters(robot, player)
+      for character in member.characters
+        console.log character.toString()
+    #   return callApi(apiurl.apply @, [member])
+    # .then (response) ->
+    #   player = new t.Player(pid, response[0]) # @todo : handle same playername different platforms
+    #   player.characters = getMemberWithCharacters(robot, player)
 }
 
 getMember = (displayname) ->
@@ -116,18 +128,23 @@ getMember = (displayname) ->
 
 getMemberWithCharacters = (displayname) ->
   deferred = new Deferred()
-  found_member = ""
+  self = @
   apiurl = (member) ->
-    "#{bungie_api}/destiny/#{member.platform}/account/#{member.memberid}"
+    "#{bungie_api}/destiny/#{member.platform}/account/#{member.memberid}/summary"
   getMember(displayname)
   .then (member) ->
-    found_member = member
+    self.member = member
     return callApi(apiurl.apply @, [member])
   .then (response) ->
-    characters = []
-    characters.push character.characterBase for character in response.data.characters
-    found_member.characters = characters
-    deferred.resolve(found_member)
+    self.member.characters = {}
+    for character in response.data.characters
+      try
+        pc = new t.PlayerCharacter(character.characterBase)
+        self.member.characters[pc.characterId] = pc
+      catch error
+        console.error error
+
+    deferred.resolve(self.member)
   return deferred.promise
 
 getActivityHistory = (displayname, mode, definitions) ->

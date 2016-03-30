@@ -5,12 +5,22 @@ class Player
     @platform = platform
     @memberid = data.membershipId
     @name = data.displayName
-    @characters = []
-    for character in data.characters
-      @characters.push(character.characterBase.characterId)
+    @characters = {}
+    @stats = null
 
   toString: ->
     "#{@name} (#{c.platforms[@platform]})"
+
+class PlayerCharacter
+  constructor: (characterBase) ->
+    @characterId = characterBase.characterId
+    @powerLevel = characterBase.powerLevel
+    @gender = c.genders[characterBase.genderType]
+    @classtype = c.classes[characterBase.classType]
+    @stats = null
+
+  toString: ->
+    "#{@gender} #{@classtype} (#{@powerLevel})"
 
 class PlayerElo
   constructor: (data) ->
@@ -54,5 +64,6 @@ class PlayerStats
     return ps
 
 module.exports.Player = Player
+module.exports.PlayerCharacter = PlayerCharacter
 module.exports.PlayerElo = PlayerElo
 module.exports.PlayerStats = PlayerStats

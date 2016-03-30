@@ -22,8 +22,11 @@ module.exports = (robot) ->
 
   robot.respond /pvp (\S*)/i, (res) ->
     displayname = res.match[1]
-    api.getPvpStats(displayname).then (stats) ->
-      res.send "#{displayname} pvp : #{stats.toString()}"
+    api.getPvpStats(displayname).then (player) ->
+      res.send "#{displayname} pvp : #{player.stats.toString()}"
+      for characterId in Object.keys(player.characters)
+        character = player.characters[characterId]
+        res.send "#{character.toString()} - #{character.stats.toString()}"
 
   robot.respond /carnage (\S*)/i, (res) ->
     displayname = res.match[1]
@@ -57,6 +60,12 @@ module.exports = (robot) ->
     else
       api.inspect(query_parts[0], query_parts[1]).then (weapons) ->
         console.log JSON.stringify weapons
+
+  robot.error (err, res) ->
+    robot.logger.error err
+
+    if res?
+      res.reply "DOES NOT COMPUTE"
 
 find_mode = (modestr) ->
   if !modestr
