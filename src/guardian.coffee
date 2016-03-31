@@ -26,7 +26,10 @@ module.exports = (robot) ->
       res.send "#{displayname} pvp : #{player.stats.toString()}"
       for characterId in Object.keys(player.characters)
         character = player.characters[characterId]
-        res.send "#{character.toString()} - #{character.stats.toString()}"
+        if character.stats
+          res.send "#{character.toString()} - #{character.stats.toString()}"
+        else
+          res.send "#{character.toString()} - No pvp stats"
 
   robot.respond /carnage (\S*)/i, (res) ->
     displayname = res.match[1]

@@ -1,12 +1,21 @@
 c = require('./consts.coffee')
 
 class Player
-  constructor: (platform, data) ->
-    @platform = platform
+  constructor: (data) ->
+    @platform = data.membershipType
     @memberid = data.membershipId
     @name = data.displayName
-    @characters = {}
+    @characters = []
     @stats = null
+
+  addCharacter: (characterBase) ->
+    pc = new PlayerCharacter(characterBase)
+    @characters.push(pc)
+
+  addCharacterStats: (characterId, allPvPStats) ->
+    for character in @characters
+      if character.characterId == characterId
+        character.stats = new PlayerStats(allPvPStats)
 
   toString: ->
     "#{@name} (#{c.platforms[@platform]})"

@@ -38,11 +38,15 @@ module.exports = {
       alltime = response.mergedAllCharacters.results.allPvP.allTime
       self.member.stats = new t.PlayerStats(alltime)
 
-      for character in response.characters
-        if !character.deleted
-          self.member.characters[character.characterId].stats = new t.PlayerStats(character.results.allPvP.allTime)
+      try
+        for character in response.characters
+          if !character.deleted && character.results.allPvP.allTime
+            self.member.addCharacterStats(character.characterId, character.results.allPvP.allTime)
+      catch error
+        console.error error
 
       deferred.resolve(self.member)
+
     return deferred.promise
 
   armsday: ->
@@ -94,14 +98,18 @@ module.exports = {
     deferred = new Deferred()
     getActivityHistory(displayname, 5, true)
     .then (response) ->
-      definitions = response.definitions
-      activityDetails = response.data.activities[0].activityDetails
-      activityValues = response.data.activities[0].values
-      activityDef = definitions.activities[activityDetails.referenceId]
-      activityType = definitions.activityTypes[activityDetails.activityTypeHashOverride]
+      try
+        definitions = response.definitions
+        activityDetails = response.data.activities[0].activityDetails
+        activityValues = response.data.activities[0].values
+        activityDef = definitions.activities[activityDetails.referenceId]
+        activityType = definitions.activityTypes[activityDetails.activityTypeHashOverride]
 
-      playerStats = new t.PlayerStats(activityValues)
-      deferred.resolve "#{activityType.activityTypeName} (#{activityDef.activityName}) - #{playerStats.toString()}"
+        playerStats = new t.PlayerStats(activityValues)
+        deferred.resolve "#{activityType.activityTypeName} (#{activityDef.activityName}) - #{playerStats.toString()}"
+      catch error
+        console.error error
+
     return deferred.promise
 
   inspect: (displayname, item) ->
@@ -123,7 +131,7 @@ getMember = (displayname) ->
   for platform in Object.keys(c.platforms)
     callApi(apiurl.apply(@, [platform, displayname])).then (response) ->
       if response.length > 0
-        deferred.resolve({ memberid: response[0].membershipId, platform: response[0].membershipType })
+        deferred.resolve(new t.Player(response[0]))
   return deferred.promise
 
 getMemberWithCharacters = (displayname) ->
@@ -136,24 +144,18 @@ getMemberWithCharacters = (displayname) ->
     self.member = member
     return callApi(apiurl.apply @, [member])
   .then (response) ->
-    self.member.characters = {}
     for character in response.data.characters
-      try
-        pc = new t.PlayerCharacter(character.characterBase)
-        self.member.characters[pc.characterId] = pc
-      catch error
-        console.error error
-
+      self.member.addCharacter(character.characterBase)
     deferred.resolve(self.member)
   return deferred.promise
 
 getActivityHistory = (displayname, mode, definitions) ->
   deferred = new Deferred()
-  apiurl = (c) ->
-    "http://www.bungie.net/Platform/Destiny/Stats/ActivityHistory/#{c.membershipType}/#{c.membershipId}/#{c.characterId}/"
+  apiurl = (m, c) ->
+    "http://www.bungie.net/Platform/Destiny/Stats/ActivityHistory/#{m.platform}/#{m.memberid}/#{c.characterId}/"
   getMemberWithCharacters(displayname)
   .then (member) ->
-    return callApi(apiurl.apply(@, [member.characters[0]]), { mode:mode, definitions:definitions })
+    return callApi(apiurl.apply(@, [member, member.characters[0]]), { mode:mode, definitions:definitions })
   .then (response) ->
     deferred.resolve response
   return deferred.promise
