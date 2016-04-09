@@ -112,17 +112,45 @@ module.exports = {
 
     return deferred.promise
 
-  inspect: (displayname, item) ->
-    # apiurl = (player) -> "#{bungie_api}/destiny/#{player.platform}/account/#{player.memberid}"
-    getMemberWithCharacters(displayname)
+  inspect: (displayname, itemName) ->
+    deferred = new Deferred()
+    # first find the item
+    self = @
+    findItem(itemName)
+    .then (itemHash) ->
+      console.log "Found item #{itemHash}"
+      self.itemHash = itemHash
+      return getMember(displayname)
     .then (member) ->
-      for character in member.characters
-        console.log character.toString()
-    #   return callApi(apiurl.apply @, [member])
-    # .then (response) ->
-    #   player = new t.Player(pid, response[0]) # @todo : handle same playername different platforms
-    #   player.characters = getMemberWithCharacters(robot, player)
+      return findCharactersWithItem(member, self.itemHash)
+    .then (characterItems) ->
+      deferred.resolve characterItems
+    return deferred.promise
 }
+
+getItemDetails = (member, characterId, itemInstanceId) ->
+  # /{membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Inventory/{itemInstanceId}/
+
+findCharactersWithItem = (member, itemHash) ->
+  deferred = new Deferred()
+  apiUrl = (member) ->
+    "#{bungie_api}/destiny/#{member.platform}/account/#{member.memberid}/items"
+  callApi(apiurl.apply(@, [item])).then (response) ->
+    # get characters with item
+    # for characterItem in characterItems
+    #   getItemDetails(self.member, characterItem.characterId, characterItem.itemInstanceId).then (item) ->
+    #     # calculate perks on item
+    console.log Response
+  return deferred.promise
+
+findItem = (item) ->
+  deferred = new Deferred()
+  apiUrl = (itemName) ->
+    "http://www.bungie.net/Platform/Destiny/Explorer/Items/?name=#{itemName}"
+  callApi(apiurl.apply(@, [item])).then (response) ->
+    # Response":{"data":{"itemHashes":[1703777169]
+    deferred.resolve response.data.itemHashes[0]
+  return deferred.promise
 
 getMember = (displayname) ->
   deferred = new Deferred()

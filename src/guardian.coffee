@@ -62,7 +62,8 @@ module.exports = (robot) ->
       res.send "usage: inspect <playername> <itemname>"
     else
       api.inspect(query_parts[0], query_parts[1]).then (weapons) ->
-        console.log JSON.stringify weapons
+        for weapon in weapons
+          res.send JSON.stringify weapon
 
   robot.error (err, res) ->
     robot.logger.error err
