@@ -1,7 +1,7 @@
 module.exports = {
   platforms: {
-    1: 'Xbox'
     2: 'PlayStation'
+    1: 'Xbox'
   }
   modes: {
     9: ['skirmish']
