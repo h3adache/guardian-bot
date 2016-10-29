@@ -5,6 +5,7 @@ class Bungie extends Service
     super 'https://www.bungie.net/Platform/Destiny', {'X-API-Key': process.env.BUNGIE_API_KEY}
 
   @include {
+    'MembershipId': '{membershipType}/Stats/GetMembershipIdByDisplayName/{name}',
     'Search': 'SearchDestinyPlayer/${ membershipType }/${ name }/',
     'Account': '${ membershipType }/Account/${ membershipId }/',
     'Character': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/',

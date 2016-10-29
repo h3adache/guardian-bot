@@ -19,8 +19,8 @@ module.exports = (robot) ->
       when 'challenge' then challenge(res, res.message.room, res.message.user.name, displayName)
 
   challenge = (res, team, challenger, challenged) ->
-    bungie.Search({membershipType: 2, name: challenged}).then (data) ->
-      console.log("got #{data[0].membershipId}")
+    bungie.MembershipId({membershipType: 2, name: challenged}).then (data) ->
+      console.log("got #{data}")
 
     res.send "#{challenger} of #{team} challenged #{challenged}"
 #    res.messageRoom "#{challenged}", "#{challenger} challenged #{challenged}"
