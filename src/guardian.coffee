@@ -3,8 +3,8 @@
 #
 # Commands:
 #   hubot hi <server> - hubot-guardian: says hi back
-bungie = require('./lib/bungie').bungie
-gg = require('./lib/gg').gg
+bungie = require('./lib/services/bungie').bungie
+gg = require('./lib/services/gg').gg
 
 module.exports = (robot) ->
   robot.hear /(\S*) (\S*)/i, (res) ->
