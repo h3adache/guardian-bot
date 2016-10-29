@@ -2,7 +2,7 @@
 #   Get destiny related information from slack
 #
 # Commands:
-#   hubot hi <server> - hubot-guardian: says hi back
+#   hubot elo <playerName> [mode] - finds player elo optionally filtered by mode
 bungie = require('./lib/services/bungie').bungie
 gg = require('./lib/services/gg').gg
 modes = require('./lib/consts').modes
@@ -27,11 +27,11 @@ module.exports = (robot) ->
 
   challenge = (res, team, challenger, challenged) ->
     res.send "#{challenger} of #{team} challenged #{challenged}"
-    res.messageRoom "#{team}", "#{challenger} challenged #{challenged}"
+    robot.messageRoom "##{team}", "#{challenger} challenged #{challenged}"
 
   accept = (res, team, challenged, challenger) ->
     res.send "#{challenged} of #{team} accepted #{challenger}'s challenge"
-    res.messageRoom "#{team}", "#{challenged} accepted #{challenger}" # get challengers room (brain?)
+    robot.messageRoom "##{team}", "#{challenged} accepted #{challenger}" # get challengers room (brain?)
 
   showElo = (res, displayName) ->
     bungie.id(displayName)
@@ -48,4 +48,9 @@ module.exports = (robot) ->
     console.log "get pvp stats for #{displayName}"
 
   carnage = (displayName) ->
-    console.log "get last carnage report for #{displayName}"
+    bungie.id(displayName)
+    .then (membershipId) ->
+      bungie.Account({membershipType: 2, membershipId: membershipId})
+    .then (account) ->
+      characterId = account.characters[0].characterBase.characterId
+      console.log "last played #{characterId}"
