@@ -5,6 +5,7 @@
 #   hubot hi <server> - hubot-guardian: says hi back
 bungie = require('./lib/services/bungie').bungie
 gg = require('./lib/services/gg').gg
+modes = require('./lib/consts').modes
 
 module.exports = (robot) ->
   robot.hear /(\S*) (\S*)/i, (res) ->
@@ -13,7 +14,7 @@ module.exports = (robot) ->
 
     switch command
       when 'carnage' then carnage(displayName)
-      when 'elo' then elo(displayName)
+      when 'elo' then elo(res, displayName)
       when 'pvp' then pvp(displayName)
       when 'accept' then challenge(res, res.message.room, res.message.user.name, displayName)
       when 'challenge' then challenge(res, res.message.room, res.message.user.name, displayName)
@@ -26,14 +27,12 @@ module.exports = (robot) ->
     res.send "#{challenged} of #{team} accepted #{challenger}'s challenge"
     res.messageRoom "#{team}", "#{challenged} accepted #{challenger}" # get challengers room (brain?)
 
-  elo = (displayName) ->
+  elo = (res, displayName) ->
     bungie.id(displayName)
     .then (membershipId) ->
-      console.log(membershipId)
       gg.elo({membershipId: membershipId})
     .then (elos) ->
-      for elo in elos
-        console.log "elo #{JSON.stringify(elo)}"
+      res.send ("#{modes[elo.mode][0]} #{elo.elo.toFixed(1)}" for elo in elos)
 
   pvp = (displayName) ->
     console.log "get pvp stats for #{displayName}"

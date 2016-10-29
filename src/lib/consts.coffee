@@ -16,6 +16,7 @@ module.exports = {
     24: ['rift']
     28: ['zone control', 'zc']
     29: ['srl']
+    31: ['supremacy', 'sup']
     523: ['crimson doubles', 'cd']
   }
   genders: ['Male', 'Female']

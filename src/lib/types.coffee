@@ -32,14 +32,13 @@ class PlayerCharacter
     "#{@gender} #{@classtype} (#{@powerLevel})"
 
 class PlayerElo
-  constructor: (data) ->
+  elo: (data) ->
     @elo = data.elo.toFixed(1)
     @mode = data.mode
     @gamesPlayed = data.gamesPlayed
     @gamesPlayedSolo = data.gamesPlayedSolo
     @eloSolo = data.eloSolo.toFixed(1)
 
-  toString: ->
     "#{c.modes[@mode][0]} #{@elo}"
 
 class PlayerStats
