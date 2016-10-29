@@ -1,3 +1,7 @@
+request = require 'request'
+_ = require('lodash')._
+Q = require 'q'
+
 class Service
   constructor: (@serviceBase, @headers) ->
 
@@ -6,27 +10,33 @@ class Service
       extend = @
       do (service, url) ->
         extend::[service] = (param) ->
-          Service.callApi("#{@serviceBase}/#{url}", @headers, param)
+          template = _.template("#{@serviceBase}/#{url}")
+          serviceCall = template(param)
+          Service.callApi(serviceCall, @headers)
 
+  @callApi: (url, headers) ->
+    console.log "calling #{url}"
+    deferred = Q.defer()
+    options = {
+      url: url,
+      headers: headers,
+      json: true
+    };
 
-  @callApi: (url, headers, params) ->
-    console.log("calling #{url} with #{params} / headers #{JSON.stringify(headers)}")
-#    deferred = new Deferred()
-#    options = {
-#      url: url,
-#      headers: {
-#        'X-API-Key': bungie_api_key
-#      },
-#      qs: params,
-#      json : true
-#    };
-#
-#    r options, (err, req, body) ->
-#      if body.Response
-#        deferred.resolve(body.Response)
-#      else
-#        deferred.resolve(body)
-#
-#    return deferred.promise
+    request options, (err, req, body) ->
+      if err
+        deferred.error(err)
+      else
+        deferred.resolve(Service.unwrapDestinyResponse(body))
+
+    return deferred.promise
+
+  @unwrapDestinyResponse: (res) ->
+    if res.Response && res.Response.data
+      return res.Response.data
+    else if (res.Response)
+      return res.Response
+    else
+      return res
 
 exports.Service = Service
