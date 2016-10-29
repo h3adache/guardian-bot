@@ -1,83 +1,18 @@
-api = require('./lib/api.coffee')
-c = require('./lib/consts.coffee')
+# Description:
+#   Allows hubot to get destiny related information
+#
+# Commands:
+#   hubot hi <server> - hubot-guardian: says hi back
 
 module.exports = (robot) ->
-  robot.respond /elo (\S*)(\s?)(\S*)?/i, (res) ->
-    modeStr = res.match[3]
-    displayname = res.match[1]
+  robot.hear /elo (\S*)(\s?)(\S*)?/i, (res) ->
+    modeStr = res.match[3] ? "all"
+    displayName = res.match[1]
+    res.send "Finding #{modeStr} elo for #{displayName}"
 
-    api.findElo(displayname).then (playerElos) ->
-      if modeStr
-        mode = find_mode(modeStr)
-        found = false
-        for elo in playerElos
-          if `elo.mode == mode`
-            res.send "#{displayname}: #{elo}"
-            found = true
+  robot.hear /challenge (\S*)?/i, (res) ->
+    home = res.message.room
+    away = res.match[1]
 
-        if not found
-          res.send "no elo for #{modeStr} for player #{displayname}"
-      else
-        res.send "#{displayname}: #{playerElos.join()}"
-
-  robot.respond /pvp (\S*)/i, (res) ->
-    displayname = res.match[1]
-    api.getPvpStats(displayname).then (player) ->
-      res.send "#{displayname} pvp : #{player.stats.toString()}"
-      for characterId in Object.keys(player.characters)
-        character = player.characters[characterId]
-        if character.stats
-          res.send "#{character.toString()} - #{character.stats.toString()}"
-        else
-          res.send "#{character.toString()} - No pvp stats"
-
-  robot.respond /carnage (\S*)/i, (res) ->
-    displayname = res.match[1]
-    api.carnage(displayname).then (carnageReport) ->
-      res.send "#{displayname} : #{carnageReport}"
-
-  robot.respond /armsday/i, (res) ->
-    api.armsday().then (arms) ->
-      res.send arms.join()
-
-  robot.respond /card (.*)/i, (res) ->
-    query = res.match[1]
-    api.grimoire({query: query}).then (results) ->
-      console.log "got #{JSON.stringify result}" for result in results
-
-      payload =
-        message: res.message
-        attachments: results
-      robot.emit 'slack-attachment', payload
-
-  robot.respond /lure (.*)/i, (res) ->
-    query = res.match[1]
-    api.grimoire({query: query}).then (results) ->
-      res.send result for result in results
-
-  robot.respond /inspect (.*)/i, (res) ->
-    query_parts = res.match[1].split " "
-
-    if query_parts.length != 2
-      res.send "usage: inspect <playername> <itemname>"
-    else
-      api.inspect(query_parts[0], query_parts[1]).then (weapons) ->
-        for weapon in weapons
-          res.send JSON.stringify weapon
-
-  robot.error (err, res) ->
-    robot.logger.error err
-
-    if res?
-      res.reply "DOES NOT COMPUTE"
-
-find_mode = (modestr) ->
-  if !modestr
-    return null
-
-  for key in Object.keys(c.modes)
-    values = c.modes[key]
-    if modestr.toLowerCase() in values
-      return key
-
-  return -1
+    res.send "#{home} challenged #{away}"
+    res.messageRoom "#{away}", "#{home} challenged #{away}"
