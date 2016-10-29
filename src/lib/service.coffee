@@ -27,11 +27,11 @@ class Service
       if err
         deferred.error(err)
       else
-        deferred.resolve(Service.unwrapDestinyResponse(body))
+        deferred.resolve(Service.unwrapResponse(body))
 
     return deferred.promise
 
-  @unwrapDestinyResponse: (res) ->
+  @unwrapResponse: (res) ->
     if res.Response && res.Response.data
       return res.Response.data
     else if (res.Response)
