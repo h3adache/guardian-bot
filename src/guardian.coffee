@@ -41,7 +41,8 @@ module.exports = (robot) ->
       else
         res.send "can't find user #{displayName}"
     .then (elos) ->
-      res.send ("#{modes[elo.mode][0]} #{elo.elo.toFixed(1)}" for elo in elos.sort((a, b) -> b.elo - a.elo))
+      console.log ("#{modes[elo.mode][0]} #{elo.elo.toFixed(1)}" for elo in elos.sort((a, b) -> b.elo - a.elo))
+      res.send "#{displayName} elo - " + ("#{modes[elo.mode][0]} #{elo.elo.toFixed(1)}" for elo in elos.sort((a, b) -> b.elo - a.elo)).join()
 
   pvp = (displayName) ->
     console.log "get pvp stats for #{displayName}"
