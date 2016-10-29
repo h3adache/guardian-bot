@@ -15,6 +15,6 @@ class Bungie extends Service
   constructor: () ->
     super 'https://www.bungie.net/Platform/Destiny', {'X-API-Key': process.env.BUNGIE_API_KEY}
 
-  id: (name) -> @MembershipId({membershipType: 2, name: name})
+  id: (name) -> @MembershipId({membershipType: 2, name: name}, {ignorecase:true})
 
 exports.bungie = new Bungie()

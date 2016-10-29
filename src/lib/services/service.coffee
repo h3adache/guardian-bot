@@ -9,17 +9,18 @@ class Service
     for service, url of services
       extend = @
       do (service, url) ->
-        extend::[service] = (param) ->
+        extend::[service] = (param, params = {}) ->
           template = _.template("#{@serviceBase}/#{url}")
           serviceCall = template(param)
-          Service.callApi(serviceCall, @headers)
+          Service.callApi(serviceCall, params, @headers)
 
-  @callApi: (url, headers) ->
+  @callApi: (url, params, headers) ->
     console.log "calling #{url}"
     deferred = Q.defer()
     options = {
       url: url,
       headers: headers,
+      qs: params,
       json: true
     };
 
