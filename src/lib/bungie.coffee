@@ -1,13 +1,9 @@
-exports.base = 'https://www.bungie.net/platform'
-
-class Service
-  @include: (services) ->
-    for service, url of services
-      extend = @
-      do (service, url) ->
-        extend::[service] = (param) -> console.log("calling #{url} with #{param}")
+Service = require('./service').Service
 
 class Bungie extends Service
+  constructor: () ->
+    super 'https://www.bungie.net/Platform/Destiny', {'X-API-Key': process.env.BUNGIE_API_KEY}
+
   @include {
     'Search': 'SearchDestinyPlayer/${ membershipType }/${ name }/',
     'Account': '${ membershipType }/Account/${ membershipId }/',
@@ -19,4 +15,4 @@ class Bungie extends Service
     'Progression': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Progression/'
   }
 
-module.exports.bungie = new Bungie()
+exports.bungie = new Bungie()
