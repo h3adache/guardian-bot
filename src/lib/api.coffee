@@ -145,8 +145,7 @@ findCharactersWithItem = (member, itemHash) ->
 
 findItem = (item) ->
   deferred = new Deferred()
-  apiUrl = (itemName) ->
-    "http://www.bungie.net/Platform/Destiny/Explorer/Items/?name=#{itemName}"
+  apiUrl = (itemName) -> "http://www.bungie.net/Platform/Destiny/Explorer/Items/?name=#{itemName}"
   callApi(apiurl.apply(@, [item])).then (response) ->
     # Response":{"data":{"itemHashes":[1703777169]
     deferred.resolve response.data.itemHashes[0]
@@ -154,8 +153,7 @@ findItem = (item) ->
 
 getMember = (displayname) ->
   deferred = new Deferred()
-  apiurl = (platform, displayname) ->
-    "http://proxy.guardian.gg/Platform/Destiny/SearchDestinyPlayer/#{platform}/#{displayname}"
+  apiurl = (platform, displayname) -> "http://proxy.guardian.gg/Platform/Destiny/SearchDestinyPlayer/#{platform}/#{displayname}"
   for platform in Object.keys(c.platforms)
     callApi(apiurl.apply(@, [platform, displayname])).then (response) ->
       if response.length > 0
@@ -165,8 +163,7 @@ getMember = (displayname) ->
 getMemberWithCharacters = (displayname) ->
   deferred = new Deferred()
   self = @
-  apiurl = (member) ->
-    "#{bungie_api}/destiny/#{member.platform}/account/#{member.memberid}/summary"
+  apiurl = (member) -> "#{bungie_api}/destiny/#{member.platform}/account/#{member.memberid}/summary"
   getMember(displayname)
   .then (member) ->
     self.member = member
@@ -179,8 +176,7 @@ getMemberWithCharacters = (displayname) ->
 
 getActivityHistory = (displayname, mode, definitions) ->
   deferred = new Deferred()
-  apiurl = (m, c) ->
-    "http://www.bungie.net/Platform/Destiny/Stats/ActivityHistory/#{m.platform}/#{m.memberid}/#{c.characterId}/"
+  apiurl = (m, c) -> "http://www.bungie.net/Platform/Destiny/Stats/ActivityHistory/#{m.platform}/#{m.memberid}/#{c.characterId}/"
   getMemberWithCharacters(displayname)
   .then (member) ->
     return callApi(apiurl.apply(@, [member, member.characters[0]]), { mode:mode, definitions:definitions })
