@@ -1,10 +1,14 @@
 {
   "name": "hubot-guardian",
   "description": "guardian.gg slack bot",
-  "version": "0.0.0",
+  "version": "1.0.1",
   "author": "Tim Chen <chengt@gmail.com>",
   "license": "MIT",
-  "keywords": "guardian.gg destiny elo",
+  "keywords": [
+    "guardian.gg",
+    "destiny",
+    "elo"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/h3adache/guardian-bot.git"
