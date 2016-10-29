@@ -8,7 +8,13 @@ gg = require('./lib/services/gg').gg
 modes = require('./lib/consts').modes
 
 module.exports = (robot) ->
+  robot.respond /(\S*) (\S*)/i, (res) ->
+    process(res)
+
   robot.hear /(\S*) (\S*)/i, (res) ->
+    process(res)
+
+  process = (res) ->
     command = res.match[1]
     displayName = res.match[2]
 
