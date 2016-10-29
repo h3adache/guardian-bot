@@ -1,12 +1,8 @@
 Service = require('./service').Service
 
 class Bungie extends Service
-  constructor: () ->
-    super 'https://www.bungie.net/Platform/Destiny', {'X-API-Key': process.env.BUNGIE_API_KEY}
-
   @include {
-    'MembershipId': '{membershipType}/Stats/GetMembershipIdByDisplayName/{name}',
-    'Search': 'SearchDestinyPlayer/${ membershipType }/${ name }/',
+    'MembershipId': '${membershipType}/Stats/GetMembershipIdByDisplayName/${name}',
     'Account': '${ membershipType }/Account/${ membershipId }/',
     'Character': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/',
     'Activities': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Activities/',
@@ -15,5 +11,10 @@ class Bungie extends Service
     'Inventory': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Inventory/',
     'Progression': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Progression/'
   }
+
+  constructor: () ->
+    super 'https://www.bungie.net/Platform/Destiny', {'X-API-Key': process.env.BUNGIE_API_KEY}
+
+  id: (name) -> @MembershipId({membershipType: 2, name: name})
 
 exports.bungie = new Bungie()
