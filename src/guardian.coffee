@@ -4,6 +4,7 @@
 # Commands:
 #   hubot hi <server> - hubot-guardian: says hi back
 bungie = require('./lib/bungie').bungie
+gg = require('./lib/gg').gg
 
 module.exports = (robot) ->
   robot.hear /(\S*) (\S*)/i, (res) ->
@@ -23,5 +24,10 @@ module.exports = (robot) ->
     res.messageRoom "#{challenged}", "#{challenger} challenged #{challenged}"
 
   elo = (displayName) ->
-    bungie.id(displayName).then (membershipId) ->
+    bungie.id(displayName)
+    .then (membershipId) ->
       console.log(membershipId)
+      gg.elo({membershipId:membershipId})
+    .then (elos) ->
+      for elo in elos
+        console.log "elo #{JSON.stringify(elo)}"
