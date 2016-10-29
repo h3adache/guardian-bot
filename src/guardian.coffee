@@ -15,23 +15,26 @@ module.exports = (robot) ->
     process(res)
 
   process = (res) ->
-    command = res.match[1]
+    command = res.match[1].toLowerCase()
     displayName = res.match[2]
 
     switch command
       when 'carnage' then carnage(displayName)
       when 'elo' then showElo(res, displayName)
       when 'pvp' then pvp(displayName)
-      when 'accept' then challenge(res, res.message.room, res.message.user.name, displayName)
+      when 'accept' then accept(res, res.message.room, res.message.user.name, displayName)
       when 'challenge' then challenge(res, res.message.room, res.message.user.name, displayName)
 
   challenge = (res, team, challenger, challenged) ->
     res.send "#{challenger} of #{team} challenged #{challenged}"
-    robot.messageRoom "##{team}", "#{challenger} challenged #{challenged}"
+    envelope = {notstrat:"Fs"}
+    envelope.user = {}
+    envelope.user.room = "##{challenged}"
+    robot.send envelope, "#{challenger} challenged #{challenged}"
 
   accept = (res, team, challenged, challenger) ->
     res.send "#{challenged} of #{team} accepted #{challenger}'s challenge"
-    robot.messageRoom "##{team}", "#{challenged} accepted #{challenger}" # get challengers room (brain?)
+    robot.messageRoom "#{team}", "#{challenged} accepted #{challenger}" # get challengers room (brain?)
 
   showElo = (res, displayName) ->
     bungie.id(displayName)
