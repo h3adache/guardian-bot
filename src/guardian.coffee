@@ -8,6 +8,8 @@ gg = require('./lib/services/gg').gg
 modes = require('./lib/consts').modes
 
 module.exports = (robot) ->
+  @client = robot.adapter.client
+
   robot.respond /(\S*) (\S*)/i, (res) ->
     process(res)
 
@@ -27,14 +29,13 @@ module.exports = (robot) ->
 
   challenge = (res, team, challenger, challenged) ->
     res.send "#{challenger} of #{team} challenged #{challenged}"
-    envelope = {notstrat:"Fs"}
-    envelope.user = {}
-    envelope.user.room = "##{challenged}"
-    robot.send envelope, "#{challenger} challenged #{challenged}"
+
+    channel = @client.getChannelGroupOrDMByName challenged
+    channel.send "#{challenger} challenged #{challenged}"
 
   accept = (res, team, challenged, challenger) ->
     res.send "#{challenged} of #{team} accepted #{challenger}'s challenge"
-    robot.messageRoom "#{team}", "#{challenged} accepted #{challenger}" # get challengers room (brain?)
+    robot.messageRoom "#{team}", "#{challenged} accepted #{challenger}"
 
   showElo = (res, displayName) ->
     bungie.id(displayName)
