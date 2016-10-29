@@ -29,9 +29,7 @@ module.exports = (robot) ->
 
   challenge = (res, team, challenger, challenged) ->
     res.send "#{challenger} of #{team} challenged #{challenged}"
-
-    channel = @client.getChannelGroupOrDMByName challenged
-    channel.send "#{challenger} challenged #{challenged}"
+    robot.messageRoom "##{challenged}", "#{challenger} challenged #{challenged}"
 
   accept = (res, team, challenged, challenger) ->
     res.send "#{challenged} of #{team} accepted #{challenger}'s challenge"
