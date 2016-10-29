@@ -5,14 +5,19 @@
 #   hubot hi <server> - hubot-guardian: says hi back
 
 module.exports = (robot) ->
-  robot.hear /elo (\S*)(\s?)(\S*)?/i, (res) ->
-    modeStr = res.match[3] ? "all"
-    displayName = res.match[1]
-    res.send "Finding #{modeStr} elo for #{displayName}"
+  robot.hear /(\S*) (\S*)/i, (res) ->
+    command = res.match[1]
+    displayName = res.match[2]
 
-  robot.hear /challenge (\S*)?/i, (res) ->
-    home = res.message.room
-    away = res.match[1]
+    switch command
+      when 'carnage' then res.send "carnage #{displayName}"
+      when 'elo' then res.send "elo #{displayName}"
+      when 'pvp' then res.send "pvp #{displayName}"
 
-    res.send "#{home} challenged #{away}"
-    res.messageRoom "#{away}", "#{home} challenged #{away}"
+      # challenge/accept system : wip
+      when 'accept' then challenge(res, res.message.room, res.message.user.name, displayName)
+      when 'challenge' then challenge(res, res.message.room, res.message.user.name, displayName)
+
+  challenge = (res, team, challenger, challenged) ->
+    res.send "#{challenger} of #{team} challenged #{challenged}"
+#    res.messageRoom "#{challenged}", "#{challenger} challenged #{challenged}"
