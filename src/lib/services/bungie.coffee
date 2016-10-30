@@ -16,15 +16,19 @@ class Bungie extends Service
   constructor: () ->
     super 'https://www.bungie.net/Platform/Destiny', {'X-API-Key': process.env.BUNGIE_API_KEY}
 
-  id: (name) -> @MembershipId({membershipType: 2, name: name}, {ignorecase: true})
+  id: (name) ->
+    @MembershipId({membershipType: 2, name: name}, {ignorecase: true})
 
-  accountInfo: (membershipType, membershipId) ->
+  account: (membershipType, membershipId) ->
     @Account({membershipType: membershipType, membershipId: membershipId})
+
+  character: (membershipType, membershipId, characterId) ->
+    @Character({membershipType: membershipType, membershipId: membershipId, characterId: characterId})
 
   accountStats: (membershipType, membershipId) ->
     @AccountStats({membershipType: membershipType, membershipId: membershipId})
 
-  lastPvpReport: (membershipType, membershipId, characterId) ->
+  activityHistory: (membershipType, membershipId, characterId) ->
     params = {mode: 5, definitions: true}
     @ActivityHistory({membershipType: membershipType, membershipId: membershipId, characterId: characterId}, params)
 

@@ -9,7 +9,7 @@ class Player
     @stats = null
 
   addCharacter: (characterBase) ->
-    pc = new PlayerCharacter(characterBase)
+    pc = new Character(characterBase)
     @characters.push(pc)
 
   addCharacterStats: (characterId, allPvPStats) ->
@@ -20,16 +20,15 @@ class Player
   toString: ->
     "#{@name} (#{c.platforms[@platform]})"
 
-class PlayerCharacter
+class Character
   constructor: (characterBase) ->
     @characterId = characterBase.characterId
     @powerLevel = characterBase.powerLevel
     @gender = c.genders[characterBase.genderType]
     @classtype = c.classes[characterBase.classType]
-    @stats = null
 
   toString: ->
-    "#{@gender} #{@classtype} (#{@powerLevel})"
+    return "#{@gender} #{@classtype} (#{@powerLevel})"
 
 class PlayerElo
   elo: (data) ->
@@ -77,7 +76,6 @@ class PvPStats
       ps += "- precision kills #{@precisionKills} "
       ps += "- super kills #{@superKills} "
       ps += "- best weapon #{@bestWeapon}"
-
     if @score
       ps += "- score #{@score}"
       ps += " (#{@team})"
@@ -85,7 +83,7 @@ class PvPStats
     return ps
 
 module.exports.Player = Player
-module.exports.PlayerCharacter = PlayerCharacter
+module.exports.Character = Character
 module.exports.PlayerElo = PlayerElo
 module.exports.Carnage = Carnage
 module.exports.PvPStats = PvPStats
