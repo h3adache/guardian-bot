@@ -5,7 +5,6 @@
 #   hubot elo <playerName> [mode] - finds player elo optionally filtered by mode
 bungie = require('./lib/services/bungie').bungie
 gg = require('./lib/services/gg').gg
-modes = require('./lib/consts').modes
 
 module.exports = (robot) ->
   @client = robot.adapter.client
@@ -39,12 +38,11 @@ module.exports = (robot) ->
     bungie.id(displayName)
     .then (membershipId) ->
       if membershipId > 0
-        gg.elo({membershipId: membershipId})
+        gg.getElos(membershipId)
       else
         res.send "can't find user #{displayName}"
     .then (elos) ->
-      console.log ("#{modes[elo.mode][0]} #{elo.elo.toFixed(1)}" for elo in elos.sort((a, b) -> b.elo - a.elo))
-      res.send "#{displayName} elo - " + ("#{modes[elo.mode][0]} #{elo.elo.toFixed(1)}" for elo in elos.sort((a, b) -> b.elo - a.elo)).join()
+      res.send "#{displayName} elo - #{elos}"
 
   pvp = (displayName) ->
     console.log "get pvp stats for #{displayName}"
