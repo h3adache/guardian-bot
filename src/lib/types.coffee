@@ -42,6 +42,19 @@ class PlayerElo
     "#{c.modes[@mode][0]} #{@elo}"
 
 class Carnage
+  constructor: (activities, definitions) ->
+    lastActivity = activities[0]
+    activityDetails = lastActivity.activityDetails
+    @activityName = definitions.activities[activityDetails.referenceId].activityName
+    @activityTypeName = definitions.activityTypes[activityDetails.activityTypeHashOverride].activityTypeName
+    data = lastActivity.values
+
+    @pvpStats = new PvPStats(data)
+
+  toString: ->
+    return "#{@activityTypeName} (#{@activityName}) - " + @pvpStats.toString()
+
+class PvPStats
   constructor: (data) ->
     if data.team
       @team = data.team.basic.displayValue
@@ -75,3 +88,4 @@ module.exports.Player = Player
 module.exports.PlayerCharacter = PlayerCharacter
 module.exports.PlayerElo = PlayerElo
 module.exports.Carnage = Carnage
+module.exports.PvPStats = PvPStats

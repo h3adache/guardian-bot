@@ -6,6 +6,7 @@
 bungie = require('./lib/services/bungie').bungie
 gg = require('./lib/services/gg').gg
 Carnage = require('./lib/types').Carnage
+PvPStats = require('./lib/types').PvPStats
 
 module.exports = (robot) ->
   robot.respond /(\S*) (\S*)/i, (res) ->
@@ -19,9 +20,9 @@ module.exports = (robot) ->
     displayName = res.match[2]
 
     switch command
-      when 'report' then reportPvP(res, displayName)
-      when 'elo' then showElos(res, displayName)
-      when 'pvp' then showPvpStats(displayName)
+      when 'report' then reportLast(res, displayName)
+      when 'elo' then reportElos(res, displayName)
+      when 'pvp' then reportPvPStats(displayName)
       when 'accept' then accept(res, res.message.room, res.message.user.name, displayName)
       when 'challenge' then challenge(res, res.message.room, res.message.user.name, displayName)
 
@@ -33,20 +34,25 @@ module.exports = (robot) ->
     res.send "#{challenged} of #{team} accepted #{challenger}'s challenge"
     robot.messageRoom "#{team}", "#{challenged} accepted #{challenger}"
 
-  showElos = (res, displayName) ->
+  reportElos = (res, displayName) ->
     bungie.id(displayName)
     .then (membershipId) ->
       if membershipId > 0
         gg.getElos(membershipId)
+        .then (elos) ->
+          res.send "#{displayName} elo - #{elos}"
       else
         res.send "can't find user #{displayName}"
-    .then (elos) ->
-      res.send "#{displayName} elo - #{elos}"
 
-  showPvpStats = (displayName) ->
-    console.log "get pvp stats for #{displayName}"
+  reportPvPStats = (displayName) ->
+    bungie.id(displayName)
+    .then (membershipId) ->
+      bungie.accountStats(2, membershipId)
+    .then (accountStats) ->
+      alltime = accountStats.mergedAllCharacters.results.allPvP.allTime
+      console.log new PvPStats(alltime).toString()
 
-  reportPvP = (res, displayName) ->
+  reportLast = (res, displayName) ->
     bungie.id(displayName)
     .then (membershipId) ->
       bungie.accountInfo(2, membershipId)
@@ -56,11 +62,5 @@ module.exports = (robot) ->
       membershipType = account.membershipType
       bungie.lastPvpReport(membershipType, membershipId, characterId)
     .then (response) ->
-      definitions = response.definitions
-      lastActivity = response.activities[0]
-      activityDetails = lastActivity.activityDetails
-      activityDef = definitions.activities[activityDetails.referenceId]
-      activityType = definitions.activityTypes[activityDetails.activityTypeHashOverride]
-      activityValues = lastActivity.values
-      carnage = new Carnage(activityValues)
-      res.send "#{activityType.activityTypeName} (#{activityDef.activityName}) - #{carnage.toString()}"
+      carnage = new Carnage(response.activities, response.definitions)
+      res.send carnage.toString()

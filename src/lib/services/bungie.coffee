@@ -4,10 +4,11 @@ class Bungie extends Service
   @include {
     'MembershipId': '${membershipType}/Stats/GetMembershipIdByDisplayName/${name}',
     'Account': '${ membershipType }/Account/${ membershipId }',
+    'AccountStats': 'Stats/Account/${ membershipType }/${ membershipId }/',
     'Character': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }',
     'Activities': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Activities',
     'ActivityHistory': 'Stats/ActivityHistory/${ membershipType }/${ membershipId }/${ characterId }',
-    'CarnageReport': '/Stats/PostGameCarnageReport/${ activityId }',
+    'CarnageReport': 'Stats/PostGameCarnageReport/${ activityId }',
     'Inventory': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Inventory',
     'Progression': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Progression'
   }
@@ -19,6 +20,9 @@ class Bungie extends Service
 
   accountInfo: (membershipType, membershipId) ->
     @Account({membershipType: membershipType, membershipId: membershipId})
+
+  accountStats: (membershipType, membershipId) ->
+    @AccountStats({membershipType: membershipType, membershipId: membershipId})
 
   lastPvpReport: (membershipType, membershipId, characterId) ->
     params = {mode: 5, definitions: true}
