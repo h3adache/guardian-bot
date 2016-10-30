@@ -19,7 +19,7 @@ module.exports = (robot) ->
     displayName = res.match[2]
 
     switch command
-      when 'carnage' then showLastPvPActivityStats(res, displayName)
+      when 'report' then reportPvP(res, displayName)
       when 'elo' then showElos(res, displayName)
       when 'pvp' then showPvpStats(displayName)
       when 'accept' then accept(res, res.message.room, res.message.user.name, displayName)
@@ -46,7 +46,7 @@ module.exports = (robot) ->
   showPvpStats = (displayName) ->
     console.log "get pvp stats for #{displayName}"
 
-  showLastPvPActivityStats = (res, displayName) ->
+  reportPvP = (res, displayName) ->
     bungie.id(displayName)
     .then (membershipId) ->
       bungie.accountInfo(2, membershipId)
