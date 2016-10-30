@@ -33,8 +33,8 @@ class Service
     return deferred.promise
 
   @unwrapResponse: (body) ->
-    response = body.Response.data ? body.Response ? body
-    response.definitions = body.Response.definitions
+    response = body.Response?.data ? body.Response ? body
+    response.definitions = body.Response?.definitions
     return response
 
 exports.Service = Service
