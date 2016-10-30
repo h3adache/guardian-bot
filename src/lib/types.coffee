@@ -15,7 +15,7 @@ class Player
   addCharacterStats: (characterId, allPvPStats) ->
     for character in @characters
       if character.characterId == characterId
-        character.stats = new PlayerStats(allPvPStats)
+        character.stats = new Carnage(allPvPStats)
 
   toString: ->
     "#{@name} (#{c.platforms[@platform]})"
@@ -41,7 +41,7 @@ class PlayerElo
 
     "#{c.modes[@mode][0]} #{@elo}"
 
-class PlayerStats
+class Carnage
   constructor: (data) ->
     if data.team
       @team = data.team.basic.displayValue
@@ -74,4 +74,4 @@ class PlayerStats
 module.exports.Player = Player
 module.exports.PlayerCharacter = PlayerCharacter
 module.exports.PlayerElo = PlayerElo
-module.exports.PlayerStats = PlayerStats
+module.exports.Carnage = Carnage

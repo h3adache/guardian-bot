@@ -5,10 +5,9 @@
 #   hubot elo <playerName> [mode] - finds player elo optionally filtered by mode
 bungie = require('./lib/services/bungie').bungie
 gg = require('./lib/services/gg').gg
+Carnage = require('./lib/types').Carnage
 
 module.exports = (robot) ->
-  @client = robot.adapter.client
-
   robot.respond /(\S*) (\S*)/i, (res) ->
     process(res)
 
@@ -20,9 +19,9 @@ module.exports = (robot) ->
     displayName = res.match[2]
 
     switch command
-      when 'carnage' then carnage(displayName)
-      when 'elo' then showElo(res, displayName)
-      when 'pvp' then pvp(displayName)
+      when 'carnage' then showLastPvPActivityStats(res, displayName)
+      when 'elo' then showElos(res, displayName)
+      when 'pvp' then showPvpStats(displayName)
       when 'accept' then accept(res, res.message.room, res.message.user.name, displayName)
       when 'challenge' then challenge(res, res.message.room, res.message.user.name, displayName)
 
@@ -34,7 +33,7 @@ module.exports = (robot) ->
     res.send "#{challenged} of #{team} accepted #{challenger}'s challenge"
     robot.messageRoom "#{team}", "#{challenged} accepted #{challenger}"
 
-  showElo = (res, displayName) ->
+  showElos = (res, displayName) ->
     bungie.id(displayName)
     .then (membershipId) ->
       if membershipId > 0
@@ -44,13 +43,24 @@ module.exports = (robot) ->
     .then (elos) ->
       res.send "#{displayName} elo - #{elos}"
 
-  pvp = (displayName) ->
+  showPvpStats = (displayName) ->
     console.log "get pvp stats for #{displayName}"
 
-  carnage = (displayName) ->
+  showLastPvPActivityStats = (res, displayName) ->
     bungie.id(displayName)
     .then (membershipId) ->
-      bungie.Account({membershipType: 2, membershipId: membershipId})
+      bungie.accountInfo(2, membershipId)
     .then (account) ->
       characterId = account.characters[0].characterBase.characterId
-      console.log "last played #{characterId}"
+      membershipId = account.membershipId
+      membershipType = account.membershipType
+      bungie.lastPvpReport(membershipType, membershipId, characterId)
+    .then (response) ->
+      definitions = response.definitions
+      lastActivity = response.activities[0]
+      activityDetails = lastActivity.activityDetails
+      activityDef = definitions.activities[activityDetails.referenceId]
+      activityType = definitions.activityTypes[activityDetails.activityTypeHashOverride]
+      activityValues = lastActivity.values
+      carnage = new Carnage(activityValues)
+      res.send "#{activityType.activityTypeName} (#{activityDef.activityName}) - #{carnage.toString()}"

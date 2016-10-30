@@ -32,12 +32,9 @@ class Service
 
     return deferred.promise
 
-  @unwrapResponse: (res) ->
-    if res.Response && res.Response.data
-      return res.Response.data
-    else if (res.Response)
-      return res.Response
-    else
-      return res
+  @unwrapResponse: (body) ->
+    response = body.Response.data ? body.Response ? body
+    response.definitions = body.Response.definitions
+    return response
 
 exports.Service = Service
