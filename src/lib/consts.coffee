@@ -18,6 +18,7 @@ module.exports = {
     29: ['srl']
     31: ['supremacy', 'sup']
     523: ['crimson doubles', 'cd']
+    531: ['rumble supremacy', 'rs']
   }
   genders: ['Male', 'Female']
   classes: ['Titan', 'Hunter', 'Warlock']
