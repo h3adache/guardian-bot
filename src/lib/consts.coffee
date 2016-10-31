@@ -26,6 +26,10 @@ module.exports = {
   classes: ['Titan', 'Hunter', 'Warlock']
   findMode: (mode) =>
     modeLower = mode.toLowerCase()
+
+    if !mode
+      return [-1, ['Unknown mode']]
+
     for key, value of modes
       if modeLower in value || value[0].startsWith modeLower
         return [key, value[0]]

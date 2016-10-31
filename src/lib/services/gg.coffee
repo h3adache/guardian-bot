@@ -9,12 +9,14 @@ class GG extends Service
     'chartKD': 'chart/kd/${membershipId}/'
   }
 
-  elos: (membershipId, mode) ->
+  elos: (membershipId, mode = -1) ->
     deferred = Q.defer()
 
     @elo({membershipId: membershipId})
     .then (allElos) ->
-      sortedElos = allElos.sort((a, b) -> b.elo - a.elo).filter((elo) -> not mode or elo.mode == parseInt(mode))
+      sortedElos = allElos.sort((a, b) -> b.elo - a.elo)
+      if mode != -1
+        sortedElos = sortedElos.filter((elo) -> elo.mode == parseInt(mode))
       resolvedElos = ("#{modes[elo.mode][0]} #{elo.elo.toFixed(1)}" for elo in sortedElos)
       deferred.resolve(resolvedElos.join())
     return deferred.promise

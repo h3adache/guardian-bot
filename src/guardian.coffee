@@ -54,11 +54,11 @@ module.exports = (robot) ->
     res.send "#{challenged} of #{team} accepted #{challenger}'s challenge"
     robot.messageRoom "##{team}", "#{challenged} accepted #{challenger}"
 
-  reportElos = (res, displayName, mode) ->
+  reportElos = (res, displayName, modeDef) ->
     bungie.id(displayName)
     .then (membershipId) ->
       if membershipId > 0
-        gg.elos(membershipId, mode)
+        gg.elos(membershipId, modeDef[0])
         .then (elos) ->
           res.send "#{displayName} elo - #{elos}"
       else
