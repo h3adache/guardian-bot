@@ -101,8 +101,8 @@ module.exports = (robot) ->
       weaponStats = response.mergedAllCharacters.results.allPvP.allTime
       for statType, stats of weaponStats
         switch statType
-          when /^weaponKillsPrecisionKills/.test console.log statType.substr('weaponKillsPrecisionKills'.length)
-          when /^weaponKills/.test console.log statType.substr('weaponKills'.length)
+          when /^weaponKillsPrecisionKills/.test statType then console.log statType.substr('weaponKillsPrecisionKills'.length)
+          when /^weaponKills/.test statType then console.log statType.substr('weaponKills'.length)
 
 
 
