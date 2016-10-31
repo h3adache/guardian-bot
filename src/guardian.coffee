@@ -10,6 +10,7 @@
 #   hubot accept <clan> - (WIP) if clan is any of the 4 dml clans this will send a message to said clan channel that you accepted said challenge
 bungie = require('./lib/services/bungie').bungie
 gg = require('./lib/services/gg').gg
+groups = require('./lib/consts').groups
 findMode = require('./lib/consts').findMode
 
 Carnage = require('./lib/types').Carnage
@@ -32,6 +33,7 @@ module.exports = (robot) ->
       when 'report' then reportLast(res, displayName)
       when 'elo' then reportElos(res, displayName, modeDef)
       when 'pvp' then reportPvPStats(res, displayName)
+      when 'precision' then reportPrecision(res, displayName)
       when 'accept' then accept(res, res.message.room, res.message.user.name, displayName)
       when 'challenge' then challenge(res, res.message.room, res.message.user.name, displayName)
       when 'chart' then reportCharts(res, displayName, modeDef)
@@ -90,6 +92,19 @@ module.exports = (robot) ->
     .then (response) ->
       carnage = new Carnage(response.activities, response.definitions)
       res.send carnage.toString()
+
+  reportPrecision = (res, displayName) ->
+    bungie.id(displayName)
+    .then (membershipId) ->
+      bungie.accountStats(2, membershipId, groups.Weapons)
+    .then (response) ->
+      weaponStats = response.mergedAllCharacters.results.allPvP.allTime
+      for statType, stats of weaponStats
+        switch statType
+          when /^weaponKillsPrecisionKills/.test console.log statType.substr('weaponKillsPrecisionKills'.length)
+          when /^weaponKills/.test console.log statType.substr('weaponKills'.length)
+
+
 
   formatDate = (millis) ->
     new Date(millis).toDateString().substring(4)
