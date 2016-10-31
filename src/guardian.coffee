@@ -2,8 +2,12 @@
 #   Get destiny related information from slack
 #
 # Commands:
+#   hubot pvp <playerName> - shows historical k/d/a stats for player and non deleted characters
 #   hubot elo <playerName> [mode] - finds player elo optionally filtered by mode
-#   hubot chart <playerName> <mode> - shows the k/d, elo chart for the last 5 days of mode
+#   hubot report <playerName> - shows last pvp activity stats for player
+#   hubot chart <playerName> <mode> - shows the player k/d, elo chart for the last 5 days of mode
+#   hubot challenge <clan> - (WIP) if clan is any of the 4 dml clans this will send a message to said clan channel that you have challenged them
+#   hubot accept <clan> - (WIP) if clan is any of the 4 dml clans this will send a message to said clan channel that you accepted said challenge
 bungie = require('./lib/services/bungie').bungie
 gg = require('./lib/services/gg').gg
 findMode = require('./lib/consts').findMode
@@ -13,16 +17,26 @@ PvPStats = require('./lib/types').PvPStats
 Character = require('./lib/types').Character
 
 module.exports = (robot) ->
-  robot.respond /(\S*) (\S*)/i, (res) ->
+  robot.respond /(\S*)\s+(\S*)\s*(\S*)/i, (res) ->
     process(res)
 
-  robot.hear /(\S*) (\S*)/i, (res) ->
+  robot.hear /(\S*)\s+(\S*)\s*(\S*)/i, (res) ->
     process(res)
 
-  robot.hear /chart (\S+)\s+(\S+)/i, (res) ->
-    displayName = res.match[1]
-    modeDef = findMode(res.match[2])
+  process = (res) ->
+    command = res.match[1].toLowerCase()
+    displayName = res.match[2]
+    modeDef = findMode(res.match[3])
 
+    switch command
+      when 'report' then reportLast(res, displayName)
+      when 'elo' then reportElos(res, displayName, modeDef)
+      when 'pvp' then reportPvPStats(res, displayName)
+      when 'accept' then accept(res, res.message.room, res.message.user.name, displayName)
+      when 'challenge' then challenge(res, res.message.room, res.message.user.name, displayName)
+      when 'chart' then reportCharts(res, displayName, modeDef)
+
+  reportCharts = (res, displayName, modeDef) ->
     bungie.id(displayName)
     .then (membershipId) ->
       gg.charts(membershipId, modeDef[0])
@@ -32,30 +46,19 @@ module.exports = (robot) ->
         chartOut += "#{formatDate(chart[0])} - #{chart[1]} #{chart[2].toFixed(2)}\n"
       res.send chartOut
 
-  process = (res) ->
-    command = res.match[1].toLowerCase()
-    displayName = res.match[2]
-
-    switch command
-      when 'report' then reportLast(res, displayName)
-      when 'elo' then reportElos(res, displayName)
-      when 'pvp' then reportPvPStats(res, displayName)
-      when 'accept' then accept(res, res.message.room, res.message.user.name, displayName)
-      when 'challenge' then challenge(res, res.message.room, res.message.user.name, displayName)
-
   challenge = (res, team, challenger, challenged) ->
     res.send "#{challenger} of #{team} challenged #{challenged}"
     robot.messageRoom "##{challenged}", "#{challenger} challenged #{challenged}"
 
   accept = (res, team, challenged, challenger) ->
     res.send "#{challenged} of #{team} accepted #{challenger}'s challenge"
-    robot.messageRoom "#{team}", "#{challenged} accepted #{challenger}"
+    robot.messageRoom "##{team}", "#{challenged} accepted #{challenger}"
 
-  reportElos = (res, displayName) ->
+  reportElos = (res, displayName, mode) ->
     bungie.id(displayName)
     .then (membershipId) ->
       if membershipId > 0
-        gg.elos(membershipId)
+        gg.elos(membershipId, mode)
         .then (elos) ->
           res.send "#{displayName} elo - #{elos}"
       else
