@@ -98,16 +98,19 @@ module.exports = (robot) ->
     .then (membershipId) ->
       bungie.accountStats(2, membershipId, groups.Weapons)
     .then (response) ->
-      weaponStats = response.mergedAllCharacters.results.allPvP.allTime
+      allWeaponStats = response.mergedAllCharacters.results.allPvP.allTime
       weaponsCollector = {}
-      for statType, stats of weaponStats
+      for statType, stats of allWeaponStats
         do (statType, stats) ->
           if /^weapon/.test statType
             weaponType = statType.substr(statType.lastIndexOf('Kills') + 5)
             addWeaponStats(weaponsCollector, weaponType, stats)
 
-      for weaponType, weaponStats of weaponsCollector
-        console.log weaponType, weaponStats
+      weaponStats = Object.keys(weaponsCollector).map((key) -> weaponsCollector[key])
+      weaponStats = weaponStats.filter((stats) -> stats.length > 2 && stats[1]).sort((a, b) -> a[3] > b[3] ? -1 : b[3] > a[3] ? 1 :0)
+
+      for weaponStat in weaponStats[..3]
+        console.log weaponStat
 
   addWeaponStats = (weaponsCollector, weaponType, stats) ->
     if not weaponsCollector[weaponType]?
