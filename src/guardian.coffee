@@ -3,6 +3,7 @@
 #
 # Commands:
 #   hubot pvp <playerName> - shows historical k/d/a stats for player and non deleted characters
+#   hubot precision <playerName> - shows historical weapon kill/precision stats for player
 #   hubot elo <playerName> [mode] - finds player elo optionally filtered by mode
 #   hubot report <playerName> - shows last pvp activity stats for player
 #   hubot chart <playerName> <mode> - shows the player k/d, elo chart for the last 5 days of mode
@@ -107,10 +108,12 @@ module.exports = (robot) ->
             addWeaponStats(weaponsCollector, weaponType, stats)
 
       weaponStats = Object.keys(weaponsCollector).map((key) -> weaponsCollector[key])
-      weaponStats = weaponStats.filter((stats) -> stats.length > 2 && stats[1]).sort((a, b) -> a[3] > b[3] ? -1 : b[3] > a[3] ? 1 :0)
-
-      for weaponStat in weaponStats[..3]
-        console.log weaponStat
+      weaponStats = weaponStats.filter((stats) -> stats.length > 2 && parseInt(stats[3]) > 0).sort((a, b) -> parseInt(a[3]) - parseInt(b[3]))
+      
+      weaponStatsOut = ['WeaponType\t(Kills, PrecisionKills, Precision %)']
+      for weaponStat in weaponStats by -1
+        weaponStatsOut.push formatWeapon(weaponStat)
+      res.send weaponStatsOut.join('\n')
 
   addWeaponStats = (weaponsCollector, weaponType, stats) ->
     if not weaponsCollector[weaponType]?
@@ -125,3 +128,6 @@ module.exports = (robot) ->
 
   formatDate = (millis) ->
     new Date(millis).toDateString().substring(4)
+
+  formatWeapon = (weaponStats) ->
+    weaponStats[0] + Array(16 - weaponStats[0].length).join(' ') + weaponStats[1] + '\t' + weaponStats[2] + '\t' + weaponStats[3]
