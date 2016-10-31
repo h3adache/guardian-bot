@@ -99,12 +99,26 @@ module.exports = (robot) ->
       bungie.accountStats(2, membershipId, groups.Weapons)
     .then (response) ->
       weaponStats = response.mergedAllCharacters.results.allPvP.allTime
+      weaponsCollector = {}
       for statType, stats of weaponStats
-        switch statType
-          when /^weaponKillsPrecisionKills/.test statType then console.log statType.substr('weaponKillsPrecisionKills'.length)
-          when /^weaponKills/.test statType then console.log statType.substr('weaponKills'.length)
+        do (statType, stats) ->
+          if /^weapon/.test statType
+            weaponType = statType.substr(statType.lastIndexOf('Kills') + 5)
+            addWeaponStats(weaponsCollector, weaponType, stats)
 
+      for weaponType, weaponStats of weaponsCollector
+        console.log weaponType, weaponStats
 
+  addWeaponStats = (weaponsCollector, weaponType, stats) ->
+    if not weaponsCollector[weaponType]?
+      weaponsCollector[weaponType] = [weaponType]
+
+    statIndex = switch
+      when /^weaponPrecision/.test stats.statId then 2
+      when /^weaponKillsPrecision/.test stats.statId then 3
+      else 1
+
+    weaponsCollector[weaponType][statIndex] = stats.basic.displayValue
 
   formatDate = (millis) ->
     new Date(millis).toDateString().substring(4)
