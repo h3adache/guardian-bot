@@ -11,6 +11,13 @@ PvPStats = require('./lib/types').PvPStats
 Character = require('./lib/types').Character
 
 module.exports = (robot) ->
+  robot.hear /chart (\S+)\s+(\S+)/i, (res) ->
+    displayName = res.match[1]
+    console.log "progress of #{displayName} #{res.match[2]}"
+    bungie.id(displayName)
+    .then (membershipId) ->
+      gg.charts(membershipId, 28)
+
   robot.respond /(\S*) (\S*)/i, (res) ->
     process(res)
 
@@ -40,7 +47,7 @@ module.exports = (robot) ->
     bungie.id(displayName)
     .then (membershipId) ->
       if membershipId > 0
-        gg.getElos(membershipId)
+        gg.elos(membershipId)
         .then (elos) ->
           res.send "#{displayName} elo - #{elos}"
       else
