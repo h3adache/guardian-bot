@@ -20,14 +20,23 @@ class GG extends Service
     return deferred.promise
 
   charts: (membershipId, mode) ->
+    deferred = Q.defer()
+    chart = []
+
     Q.all([@chartElo({membershipId:membershipId}), @chartKD({membershipId:membershipId})])
     .spread (elos, kds) ->
-      lastElos = (elos.filter (x) -> x.mode == mode)[-5..]
-      lastKds = (kds.filter (x) -> x.mode == mode)[-5..]
+      lastElos = (elos.filter (x) -> x.mode is parseInt(mode))
+      lastKds = (kds.filter (x) -> x.mode is parseInt(mode))
 
-      for i, elo of lastElos
-        kd = lastKds[i]
-        console.log elo.x, elo.y, kd.y
+      console.log lastElos.length
+      limit = Math.min(5, lastElos.length)
+
+      for i, elo of lastElos[-limit..]
+        kd = lastKds[-limit..][i]
+        chart.push([elo.x, elo.y, kd.y])
+      deferred.resolve(chart)
+
+    deferred.promise
 
   constructor: () ->
     super 'http://api.guardian.gg'

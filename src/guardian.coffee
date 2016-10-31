@@ -3,26 +3,32 @@
 #
 # Commands:
 #   hubot elo <playerName> [mode] - finds player elo optionally filtered by mode
+#   hubot chart <playerName> <mode> - shows the k/d, elo chart for the last 5 days of mode
 bungie = require('./lib/services/bungie').bungie
 gg = require('./lib/services/gg').gg
+findMode = require('./lib/consts').findMode
 
 Carnage = require('./lib/types').Carnage
 PvPStats = require('./lib/types').PvPStats
 Character = require('./lib/types').Character
 
 module.exports = (robot) ->
-  robot.hear /chart (\S+)\s+(\S+)/i, (res) ->
-    displayName = res.match[1]
-    console.log "progress of #{displayName} #{res.match[2]}"
-    bungie.id(displayName)
-    .then (membershipId) ->
-      gg.charts(membershipId, 28)
-
   robot.respond /(\S*) (\S*)/i, (res) ->
     process(res)
 
   robot.hear /(\S*) (\S*)/i, (res) ->
     process(res)
+
+  robot.hear /chart (\S+)\s+(\S+)/i, (res) ->
+    displayName = res.match[1]
+    modeDef = findMode(res.match[2])
+
+    bungie.id(displayName)
+    .then (membershipId) ->
+      gg.charts(membershipId, modeDef[0])
+    .then (charts) ->
+      res.send "#{displayName} #{modeDef[1]} elo / kd chart"
+      res.send "#{formatDate(chart[0])} - #{chart[1]} #{chart[2].toFixed(2)}" for chart in charts
 
   process = (res) ->
     command = res.match[1].toLowerCase()
@@ -79,3 +85,6 @@ module.exports = (robot) ->
     .then (response) ->
       carnage = new Carnage(response.activities, response.definitions)
       res.send carnage.toString()
+
+  formatDate = (millis) ->
+    new Date(millis).toDateString().substring(4)
