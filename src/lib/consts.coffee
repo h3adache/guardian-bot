@@ -16,12 +16,28 @@ modes = {
   531: ['rumble supremacy', 'rs']
 }
 
+race = [
+  'Human',
+  'Awoken',
+  'Exo',
+  'Unknown'
+]
+
+groups = {
+  General:	1
+  Weapons:	2
+  Medals:	3
+  Enemies:	4
+}
+
 module.exports = {
   platforms: {
     2: 'PlayStation'
     1: 'Xbox'
   }
   modes: modes
+  race: race
+  groups: groups
   genders: ['Male', 'Female']
   classes: ['Titan', 'Hunter', 'Warlock']
   findMode: (mode) =>
