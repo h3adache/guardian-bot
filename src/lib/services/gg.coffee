@@ -27,8 +27,6 @@ class GG extends Service
     .spread (elos, kds) ->
       lastElos = (elos.filter (x) -> x.mode is parseInt(mode))
       lastKds = (kds.filter (x) -> x.mode is parseInt(mode))
-
-      console.log lastElos.length
       limit = Math.min(5, lastElos.length)
 
       for i, elo of lastElos[-limit..]

@@ -27,9 +27,10 @@ module.exports = (robot) ->
     .then (membershipId) ->
       gg.charts(membershipId, modeDef[0])
     .then (charts) ->
-      res.send "#{displayName} #{modeDef[1]} elo / kd chart"
+      chartOut = "#{displayName} #{modeDef[1]} elo / kd chart\n"
       for chart in charts
-        res.send "#{formatDate(chart[0])} - #{chart[1]} #{chart[2].toFixed(2)}"
+        chartOut += "#{formatDate(chart[0])} - #{chart[1]} #{chart[2].toFixed(2)}\n"
+      res.send chartOut
 
   process = (res) ->
     command = res.match[1].toLowerCase()
