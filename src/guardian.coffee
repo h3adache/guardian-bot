@@ -70,13 +70,15 @@ module.exports = (robot) ->
       bungie.accountStats(2, membershipId)
       .then (accountStats) ->
         alltime = accountStats.mergedAllCharacters.results.allPvP.allTime
-        res.send displayName + " - " + new PvPStats(alltime).toString()
+        pvpStatsOut = []
+        pvpStatsOut.push displayName + " - " + new PvPStats(alltime).toString()
         cfilter = (character) -> !character.deleted && character.results.allPvP.allTime
         for character in accountStats.characters.filter cfilter
           do (character) ->
             bungie.character(2, membershipId, character.characterId)
             .then (characterInfo) ->
-              res.send new Character(characterInfo.characterBase) + " - " + new PvPStats(character.results.allPvP.allTime)
+              pvpStatsOut.push new Character(characterInfo.characterBase) + " - " + new PvPStats(character.results.allPvP.allTime)
+        res.send pvpStatsOut.join("\n")
 
   reportLast = (res, displayName) ->
     bungie.id(displayName)
