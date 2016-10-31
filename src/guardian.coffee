@@ -74,9 +74,9 @@ module.exports = (robot) ->
         pvpStatsOut.push displayName + " - " + new PvPStats(alltime).toString()
         cfilter = (character) -> !character.deleted && character.results.allPvP.allTime
         for character in accountStats.characters.filter cfilter
-          do (character) =>
+          do (character) ->
             bungie.character(2, membershipId, character.characterId)
-            .then (characterInfo) ->
+            .then (characterInfo) =>
               pvpStatsOut.push new Character(characterInfo.characterBase) + " - " + new PvPStats(character.results.allPvP.allTime)
         res.send pvpStatsOut.join("\n")
 
