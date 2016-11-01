@@ -12,6 +12,7 @@ modes = {
   28: ['zone control', 'zc']
   29: ['srl']
   31: ['supremacy']
+  34: ['supremacy']
   523: ['crimson doubles', 'cd']
   531: ['rumble supremacy', 'rs']
 }
