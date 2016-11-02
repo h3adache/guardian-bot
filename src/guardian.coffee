@@ -110,7 +110,7 @@ module.exports = (robot) ->
       weaponStats = Object.keys(weaponsCollector).map((key) -> weaponsCollector[key])
       weaponStats = weaponStats.filter((stats) -> stats.length > 2 && parseInt(stats[3]) > 0).sort((a, b) -> parseInt(a[3]) - parseInt(b[3]))
       
-      weaponStatsOut = ["#{displayName}WeaponType\t(Kills, PrecisionKills, Precision %)"]
+      weaponStatsOut = ["#{displayName}  weapon stats (Kills, PrecisionKills, Precision %)"]
       for weaponStat in weaponStats by -1
         weaponStatsOut.push formatWeapon(weaponStat)
       res.send "```" + weaponStatsOut.join('\n') + "```"
@@ -130,7 +130,7 @@ module.exports = (robot) ->
     new Date(millis).toDateString().substring(4)
 
   formatWeapon = (weaponStats) ->
-    withSpacer(20, weaponStats[0]) + withSpacer(20, weaponStats[1]) + withSpacer(20, weaponStats[2]) + weaponStats[3]
+    withSpacer(14, weaponStats[0]) + withSpacer(8, weaponStats[1]) + withSpacer(7, weaponStats[2]) + weaponStats[3]
 
   withSpacer = (spaces, text) ->
     text + spacer(spaces, text.length)
