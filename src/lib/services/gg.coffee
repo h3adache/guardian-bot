@@ -14,7 +14,7 @@ class GG extends Service
 
     @elo({membershipId: membershipId})
     .then (allElos) ->
-      sortedElos = allElos.sort((a, b) -> b.elo - a.elo).filter((elo) -> elo.rank is not -1)
+      sortedElos = allElos.sort((a, b) -> b.elo - a.elo).filter((elo) -> elo.rank > -1 )
       if mode != -1
         sortedElos = sortedElos.filter((elo) -> elo.mode == parseInt(mode))
       resolvedElos = ("#{modes[elo.mode][0]} #{elo.elo.toFixed(1)}" for elo in sortedElos)
