@@ -91,8 +91,8 @@ module.exports = (robot) ->
       membershipType = account.membershipType
       bungie.activityHistory(membershipType, membershipId, characterId)
     .then (response) ->
-      carnage = new Carnage(response.activities, response.definitions)
-      res.send carnage.toString()
+      carnage = new Carnage(response.activities[0], response.definitions)
+      res.send "#{displayName} #{carnage}"
 
   reportPrecision = (res, displayName) ->
     bungie.id(displayName)

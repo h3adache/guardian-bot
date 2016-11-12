@@ -41,12 +41,11 @@ class PlayerElo
     "#{c.modes[@mode][0]} #{@elo}"
 
 class Carnage
-  constructor: (activities, definitions) ->
-    lastActivity = activities[0]
-    activityDetails = lastActivity.activityDetails
+  constructor: (activity, definitions) ->
+    activityDetails = activity.activityDetails
     @activityName = definitions.activities[activityDetails.referenceId].activityName
     @activityTypeName = definitions.activityTypes[activityDetails.activityTypeHashOverride].activityTypeName
-    data = lastActivity.values
+    data = activity.values
 
     @pvpStats = new PvPStats(data)
 
