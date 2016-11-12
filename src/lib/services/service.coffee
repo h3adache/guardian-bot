@@ -1,6 +1,6 @@
-request = require 'request'
+rp = require 'request-promise'
 _ = require('lodash')._
-Q = require 'q'
+Promise = require('bluebird')
 
 class Service
   constructor: (@serviceBase, @headers) ->
@@ -16,21 +16,19 @@ class Service
 
   @callApi: (url, params, headers) ->
     console.log "calling #{url}"
-    deferred = Q.defer()
-    options = {
-      url: url,
-      headers: headers,
-      qs: params,
-      json: true
-    };
+    return new Promise (resolve, reject) ->
+      options = {
+        url: url,
+        headers: headers,
+        qs: params,
+        json: true
+      };
 
-    request options, (err, req, body) ->
-      if err
-        deferred.error(err)
-      else
-        deferred.resolve(Service.unwrapResponse(body))
-
-    return deferred.promise
+      rp(options)
+      .then (body) ->
+        resolve(Service.unwrapResponse(body))
+      .catch (err) ->
+        reject(err)
 
   @unwrapResponse: (body) ->
     response = body.Response?.data ? body.Response ? body
