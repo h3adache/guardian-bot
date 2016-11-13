@@ -1,26 +1,35 @@
 Service = require('./service').Service
+e = require('../data/extractors')
 
 class Bungie extends Service
   @include {
-    'MembershipId': '${membershipType}/Stats/GetMembershipIdByDisplayName/${name}',
-    'Account': '${ membershipType }/Account/${ membershipId }',
-    'AccountStats': 'Stats/Account/${ membershipType }/${ membershipId }/',
-    'Character': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }',
-    'Activities': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Activities',
-    'ActivityHistory': 'Stats/ActivityHistory/${ membershipType }/${ membershipId }/${ characterId }',
-    'CarnageReport': 'Stats/PostGameCarnageReport/${ activityId }',
-    'Inventory': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Inventory',
-    'Progression': '${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Progression'
+    'MembershipId': 'Destiny/${membershipType}/Stats/GetMembershipIdByDisplayName/${name}',
+    'BungieAccount': '/User/GetBungieAccount/${membershipId}/${membershipType}/',
+    'Account': 'Destiny/${ membershipType }/Account/${ membershipId }',
+    'AccountStats': 'Destiny/Stats/Account/${ membershipType }/${ membershipId }/',
+    'Character': 'Destiny/${ membershipType }/Account/${ membershipId }/Character/${ characterId }',
+    'Activities': 'Destiny/${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Activities',
+    'ActivityHistory': 'Destiny/Stats/ActivityHistory/${ membershipType }/${ membershipId }/${ characterId }',
+    'CarnageReport': 'Destiny/Stats/PostGameCarnageReport/${ activityId }',
+    'Inventory': 'Destiny/${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Inventory',
+    'Progression': 'Destiny/${ membershipType }/Account/${ membershipId }/Character/${ characterId }/Progression'
   }
 
   constructor: () ->
-    super 'https://www.bungie.net/Platform/Destiny', {'X-API-Key': process.env.BUNGIE_API_KEY}
+    super 'https://www.bungie.net/Platform', {'X-API-Key': process.env.BUNGIE_API_KEY}
 
   id: (name) ->
     @MembershipId({membershipType: 2, name: name}, {ignorecase: true})
 
   account: (membershipType, membershipId) ->
     @Account({membershipType: membershipType, membershipId: membershipId})
+
+  member: (name) ->
+    @MembershipId({membershipType: 2, name: name}, {ignorecase: true})
+    .then (membershipId) =>
+      @BungieAccount({membershipType: 2, membershipId: membershipId})
+    .then (bungieAccount) ->
+      e.member(name, bungieAccount)
 
   character: (membershipType, membershipId, characterId) ->
     @Character({membershipType: membershipType, membershipId: membershipId, characterId: characterId})
