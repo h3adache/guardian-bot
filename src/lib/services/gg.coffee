@@ -1,6 +1,6 @@
 Service = require('./service').Service
-Q = require 'q'
 modes = require('../consts').modes
+Promise = require('bluebird')
 
 class GG extends Service
   @include {
@@ -10,33 +10,29 @@ class GG extends Service
   }
 
   elos: (membershipId, mode = -1) ->
-    deferred = Q.defer()
-
-    @elo({membershipId: membershipId})
-    .then (allElos) ->
-      sortedElos = allElos.sort((a, b) -> b.elo - a.elo).filter((elo) -> elo.rank > -1 )
-      if mode != -1
-        sortedElos = sortedElos.filter((elo) -> elo.mode == parseInt(mode))
-      resolvedElos = ("#{modes[elo.mode][0]} #{elo.elo.toFixed(1)}" for elo in sortedElos)
-      deferred.resolve(resolvedElos.join())
-    return deferred.promise
+    return new Promise (resolve) =>
+      @elo({membershipId: membershipId})
+      .then (allElos) ->
+        sortedElos = allElos.sort((a, b) -> b.elo - a.elo).filter((elo) -> elo.rank > -1 )
+        if mode != -1
+          sortedElos = sortedElos.filter((elo) -> elo.mode == parseInt(mode))
+        resolvedElos = ("#{modes[elo.mode][0]} #{elo.elo.toFixed(1)}" for elo in sortedElos)
+        resolve(resolvedElos.join())
 
   charts: (membershipId, mode) ->
-    deferred = Q.defer()
-    chart = []
+    return new Promise (resolve) =>
+      chart = []
+      Promise.all([@chartElo({membershipId:membershipId}), @chartKD({membershipId:membershipId})])
+      .spread (elos, kds) ->
+        lastElos = (elos.filter (x) -> x.mode is parseInt(mode))
+        lastKds = (kds.filter (x) -> x.mode is parseInt(mode))
+        limit = Math.min(5, lastElos.length)
 
-    Q.all([@chartElo({membershipId:membershipId}), @chartKD({membershipId:membershipId})])
-    .spread (elos, kds) ->
-      lastElos = (elos.filter (x) -> x.mode is parseInt(mode))
-      lastKds = (kds.filter (x) -> x.mode is parseInt(mode))
-      limit = Math.min(5, lastElos.length)
+        for i, elo of lastElos[-limit..]
+          kd = lastKds[-limit..][i]
+          chart.push([elo.x, elo.y, kd.y])
 
-      for i, elo of lastElos[-limit..]
-        kd = lastKds[-limit..][i]
-        chart.push([elo.x, elo.y, kd.y])
-      deferred.resolve(chart)
-
-    deferred.promise
+        resolve(chart)
 
   constructor: () ->
     super 'http://api.guardian.gg'
