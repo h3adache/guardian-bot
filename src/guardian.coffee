@@ -144,7 +144,7 @@ module.exports = (robot) ->
     weaponsCollector[weaponType][statIndex] = stats.basic.displayValue
 
   formatDate = (millis) ->
-    new Date(millis).toDateString().substring(4)
+    new Date(millis).toUTCString().substring(4)
 
   formatWeapon = (weaponStats) ->
     withSpacer(14, weaponStats[0]) + withSpacer(8, weaponStats[1]) + withSpacer(7, weaponStats[2]) + weaponStats[3]
