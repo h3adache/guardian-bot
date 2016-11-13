@@ -12,10 +12,13 @@ extractCharacters = (characters) ->
 
 module.exports = {
   member: (name, bungieAccount) ->
+    account = bungieAccount.destinyAccounts[0]
     return {
-      name: name,
-      membershipId: bungieAccount.bungieNetUser.membershipId,
+      name: account.userInfo.displayName,
+      membershipId: account.userInfo.membershipId,
+      membershipType: account.userInfo.membershipType,
       clan: bungieAccount.relatedGroups[bungieAccount.clans[0].groupId].name,
-      characters: extractCharacters(bungieAccount.destinyAccounts[0].characters)
+      characters: extractCharacters(account.characters),
+      lastCharacter: account.characters[0].characterId
     }
 }

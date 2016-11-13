@@ -13,10 +13,12 @@ bungie = require('./lib/services/bungie').bungie
 gg = require('./lib/services/gg').gg
 groups = require('./lib/consts').groups
 findMode = require('./lib/consts').findMode
+_ = require('lodash')._
 
 Carnage = require('./lib/types').Carnage
 PvPStats = require('./lib/types').PvPStats
 Character = require('./lib/types').Character
+
 
 module.exports = (robot) ->
   robot.respond /(\S*)\s+(\S*)\s*(\S*)/i, (res) ->
@@ -86,32 +88,28 @@ module.exports = (robot) ->
             res.send new Character(characterInfo.characterBase) + " - " + new PvPStats(character.results.allPvP.allTime)
 
   reportLast = (res, displayName) ->
-    bungie.id(displayName)
-    .then (membershipId) ->
-      bungie.account(2, membershipId)
-    .then (account) ->
-      characterId = account.characters[0].characterBase.characterId
-      membershipId = account.membershipId
-      membershipType = account.membershipType
-      bungie.activityHistory(membershipType, membershipId, characterId)
+    bungie.member(displayName)
+    .then (member) ->
+      bungie.activityHistory(member.membershipType, member.membershipId, member.lastCharacter)
     .then (response) ->
       carnage = new Carnage(response.activities[0], response.definitions)
       res.send "#{displayName} #{carnage}"
 
   reportBest = (res, displayName) ->
-    bungie.id(displayName)
+    bungie.member(displayName)
     .bind({})
-    .then (membershipId) ->
-      this.membershipId = membershipId
-      bungie.account(2, membershipId)
-    .then (account) ->
-      this.membershipType = account.membershipType
-      return account.characters.map (character) -> character.characterBase.characterId
-    .then (characters) ->
-      return characters.map (characterId) => bungie.activityHistory(this.membershipType, this.membershipId, characterId)
-    .all()
-    .then (results) ->
-      console.log JSON.stringify(results[0].activities[0])
+    .then (member) ->
+      this.member = member
+      return Object.keys(member.characters).map (characterId) =>
+        bungie.activityHistory(member.membershipType, member.membershipId, characterId)
+    .each (activity) ->
+      best = _.maxBy activity.activities, (data) -> data.values.kills.basic.value
+      (this.activity || this.activity = []).push(best)
+      this.definitions = activity.definitions
+    .then () ->
+      best = _.maxBy this.activity, (data) -> data.values.kills.basic.value
+      carnage = new Carnage(best, this.definitions)
+      res.send "Highscore #{displayName} - #{best.period.substr(0,10)} #{carnage}"
 
   reportPrecision = (res, displayName) ->
     bungie.id(displayName)
