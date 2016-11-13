@@ -20,7 +20,6 @@ Carnage = require('./lib/types').Carnage
 PvPStats = require('./lib/types').PvPStats
 Character = require('./lib/types').Character
 
-
 module.exports = (robot) ->
   robot.respond /(\S*)\s+(\S*)\s*(\S*)/i, (res) ->
     process(res)
@@ -72,21 +71,20 @@ module.exports = (robot) ->
         res.send "can't find user #{displayName}"
 
   reportPvPStats = (res, displayName) ->
-    bungie.id(displayName)
+    bungie.member(displayName)
     .bind({})
-    .then (membershipId) ->
-      this.membershipId = membershipId
-      bungie.accountStats(2, membershipId)
+    .then (member) ->
+      this.member = member
+      bungie.accountStats(member.membershipType, member.membershipId)
     .then (accountStats) ->
-      membershipId = this.membershipId
+      output = []
       alltime = accountStats.mergedAllCharacters.results.allPvP.allTime
-      res.send displayName + " - " + new PvPStats(alltime).toString()
+      output.push (displayName + " - " + new PvPStats(alltime).toString())
       cfilter = (character) -> !character.deleted && character.results.allPvP.allTime
-      for character in accountStats.characters.filter cfilter
-        do (character) ->
-          bungie.character(2, membershipId, character.characterId)
-          .then (characterInfo) ->
-            res.send new Character(characterInfo.characterBase) + " - " + new PvPStats(character.results.allPvP.allTime)
+      (accountStats.characters.filter cfilter).forEach (characterInfo) =>
+        character = this.member.characters[characterInfo.characterId]
+        output.push (character + " - " + new PvPStats(characterInfo.results.allPvP.allTime))
+      res.send output.join('\n')
 
   reportLast = (res, displayName) ->
     bungie.member(displayName)
@@ -110,7 +108,7 @@ module.exports = (robot) ->
     .then () ->
       best = _.maxBy this.activity, (data) -> data.values.kills.basic.value
       carnage = new Carnage(best, this.definitions)
-      res.send "Highscore #{displayName} - #{best.period.substr(0,10)} #{carnage}"
+      res.send "Highscore #{displayName} - #{best.period.substr(0, 10)} #{carnage}"
 
   reportPrecision = (res, displayName) ->
     bungie.id(displayName)
