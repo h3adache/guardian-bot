@@ -31,6 +31,7 @@ module.exports = (robot) ->
     modeDef = findMode(res.match[3])
 
     switch command
+      when 'highscore' then reportBest(res, displayName)
       when 'report' then reportLast(res, displayName)
       when 'elo' then reportElos(res, displayName, modeDef)
       when 'pvp' then reportPvPStats(res, displayName)
@@ -69,17 +70,20 @@ module.exports = (robot) ->
 
   reportPvPStats = (res, displayName) ->
     bungie.id(displayName)
+    .bind({})
     .then (membershipId) ->
+      this.membershipId = membershipId
       bungie.accountStats(2, membershipId)
-      .then (accountStats) ->
-        alltime = accountStats.mergedAllCharacters.results.allPvP.allTime
-        res.send displayName + " - " + new PvPStats(alltime).toString()
-        cfilter = (character) -> !character.deleted && character.results.allPvP.allTime
-        for character in accountStats.characters.filter cfilter
-          do (character) ->
-            bungie.character(2, membershipId, character.characterId)
-            .then (characterInfo) ->
-              res.send new Character(characterInfo.characterBase) + " - " + new PvPStats(character.results.allPvP.allTime)
+    .then (accountStats) ->
+      membershipId = this.membershipId
+      alltime = accountStats.mergedAllCharacters.results.allPvP.allTime
+      res.send displayName + " - " + new PvPStats(alltime).toString()
+      cfilter = (character) -> !character.deleted && character.results.allPvP.allTime
+      for character in accountStats.characters.filter cfilter
+        do (character) ->
+          bungie.character(2, membershipId, character.characterId)
+          .then (characterInfo) ->
+            res.send new Character(characterInfo.characterBase) + " - " + new PvPStats(character.results.allPvP.allTime)
 
   reportLast = (res, displayName) ->
     bungie.id(displayName)
@@ -93,6 +97,21 @@ module.exports = (robot) ->
     .then (response) ->
       carnage = new Carnage(response.activities[0], response.definitions)
       res.send "#{displayName} #{carnage}"
+
+  reportBest = (res, displayName) ->
+    bungie.id(displayName)
+    .bind({})
+    .then (membershipId) ->
+      this.membershipId = membershipId
+      bungie.account(2, membershipId)
+    .then (account) ->
+      this.membershipType = account.membershipType
+      return account.characters.map (character) -> character.characterBase.characterId
+    .then (characters) ->
+      return characters.map (characterId) => bungie.activityHistory(this.membershipType, this.membershipId, characterId)
+    .all()
+    .then (results) ->
+      console.log JSON.stringify(results[0].activities[0])
 
   reportPrecision = (res, displayName) ->
     bungie.id(displayName)
@@ -109,7 +128,7 @@ module.exports = (robot) ->
 
       weaponStats = Object.keys(weaponsCollector).map((key) -> weaponsCollector[key])
       weaponStats = weaponStats.filter((stats) -> stats.length > 2 && parseInt(stats[3]) > 0).sort((a, b) -> parseInt(a[3]) - parseInt(b[3]))
-      
+
       weaponStatsOut = ["#{displayName}  weapon stats (Kills, PrecisionKills, Precision %)"]
       for weaponStat in weaponStats by -1
         weaponStatsOut.push formatWeapon(weaponStat)
@@ -122,7 +141,8 @@ module.exports = (robot) ->
     statIndex = switch
       when /^weaponPrecision/.test stats.statId then 2
       when /^weaponKillsPrecision/.test stats.statId then 3
-      else 1
+      else
+        1
 
     weaponsCollector[weaponType][statIndex] = stats.basic.displayValue
 
