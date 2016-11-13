@@ -3,6 +3,7 @@
 #
 # Commands:
 #   hubot pvp <playerName> - shows historical k/d/a stats for player and non deleted characters
+#   hubot highscore <playerName> - shows highest kill game stats for player and non deleted characters
 #   hubot precision <playerName> - shows historical weapon kill/precision stats for player
 #   hubot elo <playerName> [mode] - finds player elo optionally filtered by mode
 #   hubot report <playerName> - shows last pvp activity stats for player
