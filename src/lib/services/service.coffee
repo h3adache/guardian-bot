@@ -15,7 +15,7 @@ class Service
           Service.callApi(serviceCall, params, @headers)
 
   @callApi: (url, params, headers) ->
-    console.log "calling #{url}"
+    console.log "calling #{url} with #{JSON.stringify(params)}"
     return new Promise (resolve, reject) ->
       options = {
         url: url,

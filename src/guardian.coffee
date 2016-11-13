@@ -3,7 +3,7 @@
 #
 # Commands:
 #   hubot pvp <playerName> - shows historical k/d/a stats for player and non deleted characters
-#   hubot highscore <playerName> - shows highest kill game stats for player and non deleted characters
+#   hubot highscore <playerName> - shows highest kill game stats in last 200 pvp games for player and non deleted characters
 #   hubot precision <playerName> - shows historical weapon kill/precision stats for player
 #   hubot elo <playerName> [mode] - finds player elo optionally filtered by mode
 #   hubot report <playerName> - shows last pvp activity stats for player
@@ -102,9 +102,9 @@ module.exports = (robot) ->
       return Object.keys(member.characters).map (characterId) =>
         bungie.activityHistory(member.membershipType, member.membershipId, characterId)
     .each (activity) ->
-      best = _.maxBy activity.activities, (data) -> data.values.kills.basic.value
+      best = _.maxBy activity.activities, (data) -> parseInt(data.values.kills.basic.value)
       (this.activity || this.activity = []).push(best)
-      this.definitions = activity.definitions
+      this.definitions = _.merge((this.definitions || {}), activity.definitions)
     .then () ->
       best = _.maxBy this.activity, (data) -> data.values.kills.basic.value
       carnage = new Carnage(best, this.definitions)
