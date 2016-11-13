@@ -45,7 +45,7 @@ module.exports = {
     modeLower = mode.toLowerCase()
 
     if !mode
-      return [-1, ['Unknown mode']]
+      return [5, ['All PvP']]
 
     for key, value of modes
       if modeLower in value || value[0].startsWith modeLower

@@ -37,8 +37,8 @@ class Bungie extends Service
   accountStats: (membershipType, membershipId, groups = 1) ->
     @AccountStats({membershipType: membershipType, membershipId: membershipId}, {groups: groups})
 
-  activityHistory: (membershipType, membershipId, characterId, count = 200) ->
-    params = {mode: 5, definitions: true, count: count}
+  activityHistory: (membershipType, membershipId, characterId, mode = 5, count = 200) ->
+    params = {mode: mode, definitions: true, count: count}
     @ActivityHistory({membershipType: membershipType, membershipId: membershipId, characterId: characterId}, params)
 
 

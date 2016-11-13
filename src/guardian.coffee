@@ -3,7 +3,7 @@
 #
 # Commands:
 #   hubot pvp <playerName> - shows historical k/d/a stats for player and non deleted characters
-#   hubot highscore <playerName> - shows highest kill game stats in last 200 pvp games for player and non deleted characters
+#   hubot highscore <playerName> [mode] - shows highest kill game stats in last 200 pvp games for player and non deleted characters
 #   hubot precision <playerName> - shows historical weapon kill/precision stats for player
 #   hubot elo <playerName> [mode] - finds player elo optionally filtered by mode
 #   hubot report <playerName> - shows last pvp activity stats for player
@@ -18,7 +18,6 @@ _ = require('lodash')._
 
 Carnage = require('./lib/types').Carnage
 PvPStats = require('./lib/types').PvPStats
-Character = require('./lib/types').Character
 
 module.exports = (robot) ->
   robot.respond /(\S*)\s+(\S*)\s*(\S*)/i, (res) ->
@@ -33,7 +32,7 @@ module.exports = (robot) ->
     modeDef = findMode(res.match[3])
 
     switch command
-      when 'highscore' then reportBest(res, displayName)
+      when 'highscore' then reportBest(res, displayName, modeDef)
       when 'report' then reportLast(res, displayName)
       when 'elo' then reportElos(res, displayName, modeDef)
       when 'pvp' then reportPvPStats(res, displayName)
@@ -94,17 +93,18 @@ module.exports = (robot) ->
       carnage = new Carnage(response.activities[0], response.definitions)
       res.send "#{displayName} #{carnage}"
 
-  reportBest = (res, displayName) ->
+  reportBest = (res, displayName, modeDef) ->
     bungie.member(displayName)
     .bind({})
     .then (member) ->
       this.member = member
       return Object.keys(member.characters).map (characterId) =>
-        bungie.activityHistory(member.membershipType, member.membershipId, characterId)
+        bungie.activityHistory(member.membershipType, member.membershipId, characterId, modeDef[0])
     .each (activity) ->
-      best = _.maxBy activity.activities, (data) -> parseInt(data.values.kills.basic.value)
-      (this.activity || this.activity = []).push(best)
-      this.definitions = _.merge((this.definitions || {}), activity.definitions)
+      if(activity && activity.activities)
+        best = _.maxBy activity.activities, (data) -> parseInt(data.values.kills.basic.value)
+        (this.activity || this.activity = []).push(best)
+        this.definitions = _.merge((this.definitions || {}), activity.definitions)
     .then () ->
       best = _.maxBy this.activity, (data) -> data.values.kills.basic.value
       carnage = new Carnage(best, this.definitions)
