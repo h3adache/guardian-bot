@@ -1,45 +1,5 @@
 c = require('./consts.coffee')
 
-class Player
-  constructor: (data) ->
-    @platform = data.membershipType
-    @memberid = data.membershipId
-    @name = data.displayName
-    @characters = []
-    @stats = null
-
-  addCharacter: (characterBase) ->
-    pc = new Character(characterBase)
-    @characters.push(pc)
-
-  addCharacterStats: (characterId, allPvPStats) ->
-    for character in @characters
-      if character.characterId == characterId
-        character.stats = new Carnage(allPvPStats)
-
-  toString: ->
-    "#{@name} (#{c.platforms[@platform]})"
-
-class Character
-  constructor: (characterBase) ->
-    @characterId = characterBase.characterId
-    @powerLevel = characterBase.powerLevel
-    @gender = c.genders[characterBase.genderType]
-    @classtype = c.classes[characterBase.classType]
-
-  toString: ->
-    return "#{@gender} #{@classtype} (#{@powerLevel})"
-
-class PlayerElo
-  elo: (data) ->
-    @elo = data.elo.toFixed(1)
-    @mode = data.mode
-    @gamesPlayed = data.gamesPlayed
-    @gamesPlayedSolo = data.gamesPlayedSolo
-    @eloSolo = data.eloSolo.toFixed(1)
-
-    "#{c.modes[@mode][0]} #{@elo}"
-
 class Carnage
   constructor: (activity, definitions) ->
     activityDetails = activity.activityDetails
@@ -81,8 +41,5 @@ class PvPStats
 
     return ps
 
-module.exports.Player = Player
-module.exports.Character = Character
-module.exports.PlayerElo = PlayerElo
 module.exports.Carnage = Carnage
 module.exports.PvPStats = PvPStats
