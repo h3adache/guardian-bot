@@ -92,8 +92,8 @@ module.exports = (robot) ->
       bungie.activityHistory(member.membershipType, member.membershipId, member.lastCharacter)
     .then (response) ->
       carnage = ["Last #{num} Activity Report for #{displayName}"]
-      response.activities[0..num-1].forEach (activity) ->
-        carnage.push new Carnage(activity, response.definitions)
+      _.take(response.activities, num).forEach (activity) ->
+        carnage.push "#{activity.period.substr(0, 10)} #{new Carnage(activity, response.definitions)}"
       res.send carnage.join('\n')
 
   reportBest = (res, displayName, modeDef) ->
@@ -106,13 +106,13 @@ module.exports = (robot) ->
         bungie.activityHistory(member.membershipType, member.membershipId, characterId, modeDef[0])
     .each (activity) ->
       if(activity && activity.activities)
-        best = _.sortBy activity.activities, (data) -> parseInt(data.values.kills.basic.value)
-        this.activities = (this.activities || this.activities = []).concat(_.takeRight(best, num))
+        best = _.orderBy(activity.activities, ((d) -> parseInt(d.values.kills.basic.value)), ['desc']);
+        this.activities = _.merge((this.activities || this.activities = []), _.take(best, num))
         this.definitions = _.merge((this.definitions || {}), activity.definitions)
     .then () ->
-      best = _.sortBy this.activities, (activity) -> activity.values.kills.basic.value
-      carnage = ["Top 3 kills for #{displayName}"]
-      _.takeRight(best, num).forEach (activity) =>
+      best = _.orderBy(this.activities, ((d) -> parseInt(d.values.kills.basic.value)), ['desc'])
+      carnage = ["Top #{num} kills for #{displayName}"]
+      _.take(best, num).forEach (activity) =>
         carnage.push("#{activity.period.substr(0, 10)} #{new Carnage(activity, this.definitions)}")
       res.send carnage.join('\n')
 
