@@ -30,10 +30,10 @@ module.exports = (robot) ->
     command = res.match[1].toLowerCase()
     displayName = res.match[2]
     modeDef = findMode(res.match[3])
-    if (modeDef[0] == -1)
-      res.send "Unknown mode #{res.match[3]}"
-    else
-      handleCommand(res, command, displayName, modeDef)
+#    if (modeDef[0] == -1)
+#      res.send "Unknown mode #{res.match[3]}"
+#    else
+    handleCommand(res, command, displayName, modeDef)
 
   handleCommand = (res, command, displayName, modeDef) ->
     switch command
