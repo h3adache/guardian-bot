@@ -86,14 +86,18 @@ module.exports = (robot) ->
       res.send output.join('\n')
 
   reportLast = (res, displayName) ->
+    num = 3
     bungie.member(displayName)
     .then (member) ->
       bungie.activityHistory(member.membershipType, member.membershipId, member.lastCharacter)
     .then (response) ->
-      carnage = new Carnage(response.activities[0], response.definitions)
-      res.send "#{displayName} #{carnage}"
+      carnage = ["Last #{num} Activity Report for #{displayName}"]
+      response.activities[0..num-1].forEach (activity) ->
+        carnage.push new Carnage(activity, response.definitions)
+      res.send carnage.join('\n')
 
   reportBest = (res, displayName, modeDef) ->
+    num = 3
     bungie.member(displayName)
     .bind({})
     .then (member) ->
@@ -102,13 +106,15 @@ module.exports = (robot) ->
         bungie.activityHistory(member.membershipType, member.membershipId, characterId, modeDef[0])
     .each (activity) ->
       if(activity && activity.activities)
-        best = _.maxBy activity.activities, (data) -> parseInt(data.values.kills.basic.value)
-        (this.activity || this.activity = []).push(best)
+        best = _.sortBy activity.activities, (data) -> parseInt(data.values.kills.basic.value)
+        this.activities = (this.activities || this.activities = []).concat(_.takeRight(best, num))
         this.definitions = _.merge((this.definitions || {}), activity.definitions)
     .then () ->
-      best = _.maxBy this.activity, (data) -> data.values.kills.basic.value
-      carnage = new Carnage(best, this.definitions)
-      res.send "Highscore #{displayName} - #{best.period.substr(0, 10)} #{carnage}"
+      best = _.sortBy this.activities, (activity) -> activity.values.kills.basic.value
+      carnage = ["Top 3 kills for #{displayName}"]
+      _.takeRight(best, num).forEach (activity) =>
+        carnage.push("#{activity.period.substr(0, 10)} #{new Carnage(activity, this.definitions)}")
+      res.send carnage.join('\n')
 
   reportPrecision = (res, displayName) ->
     bungie.id(displayName)
