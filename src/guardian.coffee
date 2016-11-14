@@ -65,7 +65,10 @@ module.exports = (robot) ->
       if membershipId > 0
         gg.elos(membershipId, modeDef[0])
         .then (elos) ->
-          res.send "#{displayName} elo - #{elos}"
+          if(!elos)
+            res.send "#{displayName} no elo found for #{modeDef[1]}"
+          else
+            res.send "#{displayName} elo - #{elos}"
       else
         res.send "can't find user #{displayName}"
 
@@ -106,13 +109,15 @@ module.exports = (robot) ->
         bungie.activityHistory(member.membershipType, member.membershipId, characterId, modeDef[0])
     .each (activity) ->
       if(activity && activity.activities)
-        best = _.orderBy(activity.activities, ((d) -> parseInt(d.values.kills.basic.value)), ['desc']);
-        this.activities = _.merge((this.activities || this.activities = []), _.take(best, num))
+        console.log "comparing " + activity.activities.length + " activities"
+        best = _.sortBy(activity.activities, ((d) -> d.values.kills.basic.value));
+        (this.activities || this.activities = []).push best...
         this.definitions = _.merge((this.definitions || {}), activity.definitions)
     .then () ->
-      best = _.orderBy(this.activities, ((d) -> parseInt(d.values.kills.basic.value)), ['desc'])
+      best = _.sortBy(this.activities, ((d) -> d.values.kills.basic.value))
+      best.forEach (activity) -> console.log(JSON.stringify(activity.values.kills))
       carnage = ["Top #{num} kills for #{displayName}"]
-      _.take(best, num).forEach (activity) =>
+      _.takeRight(best, num).forEach (activity) =>
         carnage.push("#{activity.period.substr(0, 10)} #{new Carnage(activity, this.definitions)}")
       res.send carnage.join('\n')
 
@@ -150,7 +155,8 @@ module.exports = (robot) ->
     weaponsCollector[weaponType][statIndex] = stats.basic.displayValue
 
   formatDate = (millis) ->
-    new Date(millis).toUTCString().substring(4)
+    date = new Date(millis)
+    (date.getUTCMonth() + 1) + "-" + date.getUTCDate() + "-" + date.getUTCFullYear()
 
   formatWeapon = (weaponStats) ->
     withSpacer(14, weaponStats[0]) + withSpacer(8, weaponStats[1]) + withSpacer(7, weaponStats[2]) + weaponStats[3]
