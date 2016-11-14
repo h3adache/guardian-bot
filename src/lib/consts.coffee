@@ -50,4 +50,6 @@ module.exports = {
     for key, value of modes
       if modeLower in value || value[0].startsWith modeLower
         return [key, value[0]]
+
+    return [-1, "Unknown Mode"]
 }

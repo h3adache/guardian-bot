@@ -30,7 +30,12 @@ module.exports = (robot) ->
     command = res.match[1].toLowerCase()
     displayName = res.match[2]
     modeDef = findMode(res.match[3])
+    if (modeDef[0] == -1)
+      res.send "Unknown mode #{res.match[3]}"
+    else
+      handleCommand(res, command, displayName, modeDef)
 
+  handleCommand = (res, command, displayName, modeDef) ->
     switch command
       when 'highscore' then reportBest(res, displayName, modeDef)
       when 'report' then reportLast(res, displayName)
@@ -42,14 +47,17 @@ module.exports = (robot) ->
       when 'chart' then reportCharts(res, displayName, modeDef)
 
   reportCharts = (res, displayName, modeDef) ->
-    bungie.id(displayName)
-    .then (membershipId) ->
-      gg.charts(membershipId, modeDef[0])
-    .then (charts) ->
-      chartOut = "#{displayName} #{modeDef[1]} elo / kd chart\n"
-      for chart in charts
-        chartOut += "#{formatDate(chart[0])} - #{chart[1]} #{chart[2].toFixed(2)}\n"
-      res.send chartOut
+    if(modeDef[0] == 5)
+      res.send "must specify mode for chart"
+    else
+      bungie.id(displayName)
+      .then (membershipId) ->
+        gg.charts(membershipId, modeDef[0])
+      .then (charts) ->
+        chartOut = "#{displayName} #{modeDef[1]} elo / kd chart\n"
+        for chart in charts
+          chartOut += "#{formatDate(chart[0])} - #{chart[1]} #{chart[2].toFixed(2)}\n"
+        res.send chartOut
 
   challenge = (res, team, challenger, challenged) ->
     res.send "#{challenger} of #{team} challenged #{challenged}"
