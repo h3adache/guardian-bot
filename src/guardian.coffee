@@ -3,13 +3,11 @@
 #
 # Commands:
 #   hubot pvp <playerName> - shows historical k/d/a stats for player and non deleted characters
-#   hubot highscore <playerName> [mode] - shows highest kill game stats in last 200 pvp games for player and non deleted characters
+#   hubot highscore <playerName> [mode] - shows highest kill game stats in last 250 pvp games for player and non deleted characters
 #   hubot precision <playerName> - shows historical weapon kill/precision stats for player
 #   hubot elo <playerName> [mode] - finds player elo optionally filtered by mode
 #   hubot report <playerName> - shows last pvp activity stats for player
 #   hubot chart <playerName> <mode> - shows the player k/d, elo chart for the last 5 days of mode
-#   hubot challenge <clan> - (WIP) if clan is any of the 4 dml clans this will send a message to said clan channel that you have challenged them
-#   hubot accept <clan> - (WIP) if clan is any of the 4 dml clans this will send a message to said clan channel that you accepted said challenge
 bungie = require('./lib/services/bungie').bungie
 gg = require('./lib/services/gg').gg
 groups = require('./lib/consts').groups
@@ -29,22 +27,25 @@ module.exports = (robot) ->
   process = (res) ->
     command = res.match[1].toLowerCase()
     displayName = res.match[2]
-    modeDef = findMode(res.match[3])
-#    if (modeDef[0] == -1)
-#      res.send "Unknown mode #{res.match[3]}"
-#    else
-    handleCommand(res, command, displayName, modeDef)
+    mQuery = res.match[3]
+    modeDef = findMode(mQuery)
 
-  handleCommand = (res, command, displayName, modeDef) ->
+    cfn = commandFunction(command)
+
+    console.log "--->", modeDef[0]
+
+    if(cfn)
+      res.send "Unknown mode #{mQuery}" if modeDef[0] is -1
+      cfn(res, displayName, modeDef) if modeDef[0] != -1
+
+  commandFunction = (command) ->
     switch command
-      when 'highscore' then reportBest(res, displayName, modeDef)
-      when 'report' then reportLast(res, displayName)
-      when 'elo' then reportElos(res, displayName, modeDef)
-      when 'pvp' then reportPvPStats(res, displayName)
-      when 'precision' then reportPrecision(res, displayName)
-      when 'accept' then accept(res, res.message.room, res.message.user.name, displayName)
-      when 'challenge' then challenge(res, res.message.room, res.message.user.name, displayName)
-      when 'chart' then reportCharts(res, displayName, modeDef)
+      when 'highscore' then reportBest
+      when 'report' then reportLast
+      when 'elo' then reportElos
+      when 'pvp' then reportPvPStats
+      when 'precision' then reportPrecision
+      when 'chart' then reportCharts
 
   reportCharts = (res, displayName, modeDef) ->
     if(modeDef[0] == 5)
@@ -58,14 +59,6 @@ module.exports = (robot) ->
         for chart in charts
           chartOut += "#{formatDate(chart[0])} - #{chart[1]} #{chart[2].toFixed(2)}\n"
         res.send chartOut
-
-  challenge = (res, team, challenger, challenged) ->
-    res.send "#{challenger} of #{team} challenged #{challenged}"
-    robot.messageRoom "##{challenged}", "#{challenger} challenged #{challenged}"
-
-  accept = (res, team, challenged, challenger) ->
-    res.send "#{challenged} of #{team} accepted #{challenger}'s challenge"
-    robot.messageRoom "##{team}", "#{challenged} accepted #{challenger}"
 
   reportElos = (res, displayName, modeDef) ->
     bungie.id(displayName)
@@ -123,7 +116,6 @@ module.exports = (robot) ->
         this.definitions = _.merge((this.definitions || {}), activity.definitions)
     .then () ->
       best = _.sortBy(this.activities, ((d) -> d.values.kills.basic.value))
-      best.forEach (activity) -> console.log(JSON.stringify(activity.values.kills))
       carnage = ["Top #{num} kills for #{displayName}"]
       _.takeRight(best, num).forEach (activity) =>
         carnage.push("#{activity.period.substr(0, 10)} #{new Carnage(activity, this.definitions)}")
@@ -174,4 +166,3 @@ module.exports = (robot) ->
 
   spacer = (spaces, offset) ->
     Array(spaces - offset).join(' ')
-
