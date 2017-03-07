@@ -17,7 +17,7 @@ module.exports = {
       name: account.userInfo.displayName,
       membershipId: account.userInfo.membershipId,
       membershipType: account.userInfo.membershipType,
-      clan: bungieAccount.relatedGroups[bungieAccount.clans[0].groupId].name,
+      clan: if bungieAccount.clans.length > 0 then bungieAccount.relatedGroups[bungieAccount.clans[0].groupId].name else '',
       characters: extractCharacters(account.characters),
       lastCharacter: account.characters[0].characterId
     }
