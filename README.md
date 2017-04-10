@@ -13,6 +13,11 @@ Now in your hubot root directory
 npm link hubot-guardian
 ```
 
+OR if you don't want to download and install guardian-bot locally then just run:
+```
+npm install https://github.com/h3adache/guardian-bot.git -S
+```
+
 Open (or create) external-scripts.json and add hubot-guardian
 For example if you are adding this to the base hubot it would look like:
 ```
