@@ -32,8 +32,6 @@ module.exports = (robot) ->
 
     cfn = commandFunction(command)
 
-    console.log "--->", modeDef[0]
-
     if(cfn)
       res.send "Unknown mode #{mQuery}" if modeDef[0] is -1
       cfn(res, displayName, modeDef) if modeDef[0] != -1
